@@ -12,6 +12,12 @@ class SocketHandler:
     def close_connection(self) -> None:
         pass
 
+    def open_as_host(self) -> bool:
+        pass
+
+    def close_as_host(self) -> None:
+        pass
+
     def add_network_action_handler(self, nah: NetworkActionHandler) -> None:
         pass
 
