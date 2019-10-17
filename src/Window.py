@@ -47,6 +47,8 @@ class Window:
             f = open(self.currentFile, "r")
             self.text.insert(1.0, f.read())
             f.close()
+    def edit():
+        pass
 
 
 if __name__ == "__main__":

@@ -20,5 +20,16 @@ class DataPacketDocumentEdit():
     def get_edit_pos(self) -> int:
         pass
 
-    def get_edit_char(self) -> str:
+    def get_edit_char(self, line_number, col_number) -> str:
         pass
+
+
+    """
+    Gets the string representation of the text currently being edited
+    Args:
+        window: the window object
+    Returns:
+        doc: string representation of the document
+    """
+    def get_document_string(self, window)
+        return window.get()
