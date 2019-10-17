@@ -1,10 +1,12 @@
-from src import DataPacket
+import DataPacket
+from ActionQueue import ActionQueue
 
-
-class NetworkActionHandler:
+class NetworkActionHandler():
+    
+    queue = None
 
     def __init__(self):
-        pass
+        self.queue = ActionQueue()
 
-    def parse_packet(self, packet: DataPacket) -> None:
+    def parse_packet(self, packet: DataPacket) -> tuple:
         pass
