@@ -10,6 +10,7 @@
 * Have to determine if we're using Google Cloud server
   * Might make it easier
   * Can make client code more homeogenous as nobody as to be the server
+  NOOOOOOO P2P ALL THE WAY BABY
 
 ## TODO's
 * Window/GUI
