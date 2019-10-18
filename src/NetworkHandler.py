@@ -1,5 +1,5 @@
 
-class SocketHandler:
+class NetworkHandler:
     """
     This class serves as a Socket wrapper for easy socket manipulation of the program.
     """
