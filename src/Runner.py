@@ -1,7 +1,7 @@
 import os
 
-from src import Util
-from src.Window import Window
+import Util
+from Window import Window
 import logging
 
 

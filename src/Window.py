@@ -2,10 +2,10 @@ import logging
 from tkinter import *
 from tkinter import filedialog
 
-from src.DataPacket import DataPacket
-from src.DataPacketDocumentEdit import DataPacketDocumentEdit
-from src.NetworkActionHandler import NetworkActionHandler
-from src.NetworkHandler import NetworkHandler
+from DataPacket import DataPacket
+from DataPacketDocumentEdit import DataPacketDocumentEdit
+from NetworkActionHandler import NetworkActionHandler
+from NetworkHandler import NetworkHandler
 
 
 class Window:
