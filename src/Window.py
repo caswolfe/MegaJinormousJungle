@@ -4,6 +4,8 @@ from tkinter import filedialog
 
 from src import Util
 from src.DataPacket import DataPacket
+from src.DataPacketDocumentEdit import DataPacketDocumentEdit
+from src.NetworkActionHandler import NetworkActionHandler
 from src.NetworkHandler import NetworkHandler
 
 
@@ -31,6 +33,8 @@ class Window:
     def __init__(self):
 
         self.net_hand = NetworkHandler()
+        self.nah = NetworkActionHandler()
+        self.net_hand.add_network_action_handler(self.nah)
 
         self.create()
 
@@ -57,6 +61,8 @@ class Window:
         self.text.pack()
         self.text.bind('<Key>', self.keypress_handler)
 
+        self.old_text = self.text.get("1.0", END)
+
     def show(self) -> None:
         """
         Shows the window.
@@ -81,8 +87,9 @@ class Window:
     def edit(self):
         pass
 
+    old_text = None
+
     def keypress_handler(self, event):
-        print('pressed {}'.format(repr(event.char)))
-        to_send = DataPacket()
-        self.net_hand.send_packet(to_send)
-        self.net_hand.send_packet('pressed {}'.format(repr(event.char)))
+        packet = DataPacketDocumentEdit(old_text=self.old_text, new_text=self.text.get("1.0", END))
+        self.net_hand.send_packet(packet)
+        self.old_text = self.text.get("1.0", END)

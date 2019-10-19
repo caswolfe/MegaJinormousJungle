@@ -13,7 +13,7 @@ def generate_config():
     config['MQTT'] = {}
     config['MQTT']['host'] = 'postman.cloudmqtt.com'
     config['MQTT']['port'] = '13272'
-    config['MQTT']['user'] = 'jumpy'
+    config['MQTT']['user'] = 'jumpy-user'
     config['MQTT']['pass'] = 'password'
 
     with open('../config.ini', 'w') as config_file:

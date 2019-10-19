@@ -2,8 +2,10 @@ import configparser
 import paho.mqtt.client as mqtt
 import logging
 import pickle
+import codecs
 
 from src.DataPacket import DataPacket
+from src.NetworkActionHandler import NetworkActionHandler
 
 
 class NetworkHandler:
@@ -22,13 +24,16 @@ class NetworkHandler:
         # MQTT client setup
         self.mc = mqtt.Client()
         self.mc.on_connect = self.mqtt_on_connect
-        self.mc.on_message = self.mqtt_on_connect
+        self.mc.on_message = self.mqtt_on_message
         self.mc.on_subscribe = self.mqtt_on_subscribe
         self.mc.on_publish = self.mqtt_on_publish
         self.mc.username_pw_set(self.config['MQTT']['user'], self.config['MQTT']['pass'])
 
         # logging setup
         self.log = logging.getLogger('jumpy')
+
+        # network action handler setup
+        self.nahs = list()
 
     def establish_connection(self) -> bool:
         """
@@ -69,24 +74,25 @@ class NetworkHandler:
     #     """
     #     pass
 
-    def add_network_action_handler(self) -> bool:
+    def add_network_action_handler(self, nah: NetworkActionHandler) -> bool:
         """
         Adds a NetworkActionHandler to this SocketHandler.
         """
-        pass
+        self.nahs.append(nah)
 
-    def remove_network_action_handler(self) -> bool:
+    def remove_network_action_handler(self, nah: NetworkActionHandler) -> bool:
         """
         Removes the specified NetworkActionHandler from this SocketHandler.
         """
-        pass
+        self.nahs.remove(nah)
 
     def send_packet(self, packet: DataPacket) -> bool:
         """
         Broadcasts the specified packet to all peers.
         """
         if isinstance(packet, DataPacket):
-            data = pickle.dumps(packet)
+            # data = pickle.dumps(packet)
+            data = codecs.encode(pickle.dumps(packet), "base64").decode()
             self.mc.publish(self.TOPIC, str(data))
         else:
             self.mc.publish(self.TOPIC, packet)
@@ -95,7 +101,12 @@ class NetworkHandler:
         self.log.info('connected')
 
     def mqtt_on_message(self, client, userdata, msg):
-        self.log.info('recieved: \'{}\''.format(msg))
+        self.log.info('r: \'{}\''.format(msg))
+        packet = pickle.loads(codecs.decode(msg.encode(), "Base64"))
+        if input(packet, DataPacket):
+            self.log.debug('received: {}'.format(packet))
+            for nah in self.nahs:
+                nah.parse_packet(packet)
 
     def mqtt_on_subscribe(self, client, obj, mid, granted_qos):
         self.log.info('subscribed')

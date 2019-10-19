@@ -1,12 +1,16 @@
-import DataPacket
-from ActionQueue import ActionQueue
+from src.DataPacket import DataPacket
+from src.DataPacketDocumentEdit import DataPacketDocumentEdit
+
 
 class NetworkActionHandler():
     
     queue = None
 
     def __init__(self):
-        self.queue = ActionQueue()
-
-    def parse_packet(self, packet: DataPacket) -> tuple:
         pass
+
+    def parse_packet(self, packet: DataPacket):
+
+        if isinstance(packet, DataPacketDocumentEdit):
+            ptp = DataPacketDocumentEdit(packet)
+            print(ptp)
