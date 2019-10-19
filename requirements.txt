@@ -1,0 +1,2 @@
+config-parser
+paho-mqtt

@@ -1,15 +1,18 @@
+import uuid
 
 
 class DataPacket:
 
-    def __int__(self):
-        pass
-
-    def get_sender_ip(self) -> str:
-        pass
+    def __int__(self, alias: str = 'UNKNOWN', lobby: str = 'GLOBAL'):
+        self.alias = alias
+        self.lobby = lobby
+        self.mac = hex(uuid.getnode())
 
     def get_sender_alias(self) -> str:
-        pass
+        return self.alias
+
+    def get_sender_mac(self) -> str:
+        return self.mac
 
     def get_doc_hash(self) -> int:
         pass

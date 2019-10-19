@@ -1,5 +1,10 @@
+import os
 from tkinter import *
 from tkinter import filedialog
+
+from src import Util
+from src.DataPacket import DataPacket
+from src.NetworkHandler import NetworkHandler
 
 
 class Window:
@@ -7,31 +12,56 @@ class Window:
     This class handles all display aspects of Jum.py.
     """
 
+    # tk root
     root = Tk()
-    text = Text(root) 
+
+    # menu bar
+    menu_bar = Menu()
+
+    # file sub-menu in the menu bar
+    menu_file = Menu(tearoff=False)
+
+    # connections sub-menu in the menu bar
+    menu_connections = Menu(tearoff=False)
+
+    text = Text(root)
+
     currentFile = None
-    menu = Menu(root)
-    fileMenu = Menu(menu, tearoff = 0)
 
     def __init__(self):
 
-        self.create()
+        self.net_hand = NetworkHandler()
 
-        self.show()
+        self.create()
 
     def create(self) -> None:
         """
         Creates the window.
         """
+
         self.root.title("Untitled")
-        self.fileMenu.add_command(label="open", command = self.openFile)
+
+        # menu bar
+        self.menu_bar.add_cascade(label='File', menu=self.menu_file)
+        self.menu_bar.add_cascade(label='Connections', menu=self.menu_connections)
+
+        # file sub-menu
+        self.menu_file.add_command(label="Open", command=self.open_file)
+
+        # connections sub-menu
+        self.menu_connections.add_command(label='Connect', command=self.net_hand.establish_connection)
+        self.menu_connections.add_command(label='Disconnect', command=self.net_hand.close_connection)
+
+        # cleanup
+        self.root.config(menu=self.menu_bar)
         self.text.pack()
+        self.text.bind('<Key>', self.keypress_handler)
 
     def show(self) -> None:
         """
         Shows the window.
         """
-        self.text.mainloop()
+        self.root.mainloop()
 
     def open_file(self) -> None:
         """
@@ -47,11 +77,12 @@ class Window:
             f = open(self.currentFile, "r")
             self.text.insert(1.0, f.read())
             f.close()
-    def edit():
+
+    def edit(self):
         pass
 
-
-if __name__ == "__main__":
-    w = Window()
-    # w.open_file()
-    # w.show()
+    def keypress_handler(self, event):
+        print('pressed {}'.format(repr(event.char)))
+        to_send = DataPacket()
+        self.net_hand.send_packet(to_send)
+        self.net_hand.send_packet('pressed {}'.format(repr(event.char)))
