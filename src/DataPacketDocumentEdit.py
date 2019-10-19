@@ -1,51 +1,44 @@
-from enum import Enum
-
-from src.DataPacket import DataPacket
-from datetime import datetime
 import difflib
 import hashlib
+from enum import Enum
+import logging
+import json
+
+from src.DataPacket import DataPacket
 
 
 class DataPacketDocumentEdit(DataPacket):
 
-    def __init__(self, old_text: str, new_text: str):
+    def __init__(self, old_text: str = None, new_text: str = None, json_str: str = None):
         super().__init__()
-        self.time_of_creation = datetime.now()
-        self.old_text_hash = hashlib.sha1(old_text.encode()).hexdigest()
-        for i, s in enumerate(difflib.ndiff(old_text, new_text)):
-            if s[0] == ' ':
-                self.action = Action.NONE
-                self.position = -1
-                self.character = ''
-            elif s[0] == '-':
-                self.action = Action.REMOVE
-                self.position = i
-                self.character = s[-1]
-            elif s[0] == '+':
-                self.action = Action.ADD
-                self.position = i
-                self.character = s[-1]
-
-    def get_time_of_creation(self) -> float:
-        return self.time_of_creation
-
-    def get_action(self):
-        return self.action
-
-    def get_pos(self) -> int:
-        return self.position
-
-    def get_char(self) -> str:
-        return self.character
-
-    def get_old_text_hash(self):
-        return self.old_text_hash
+        self.log = logging.getLogger('jumpy')
+        if json_str is None:
+            self.old_text_hash = hashlib.sha1(old_text.encode()).hexdigest()
+            self.log.debug('{} => {}'.format(repr(old_text), repr(new_text)))
+            for i, s in enumerate(difflib.ndiff(old_text, new_text)):
+                if s[0] == ' ':
+                    self.action = Action.NONE
+                    self.position = -1
+                    self.character = ''
+                elif s[0] == '-':
+                    self.action = Action.REMOVE
+                    self.position = i
+                    self.character = s[-1]
+                elif s[0] == '+':
+                    self.action = Action.ADD
+                    self.position = i
+                    self.character = s[-1]
+            self.data_dict.update({'action': self.action.value})
+            self.data_dict.update({'position': self.position})
+            self.data_dict.update({'character': self.character})
+        else:
+            self.data_dict = json.loads(json_str)
 
     def __str__(self) -> str:
         return '{} - {} - {} - {}'.format(self.old_text_hash, self.action, self.position, self.character)
 
 
 class Action(Enum):
-    NONE = ''
-    ADD = '+'
-    REMOVE = '-'
+    NONE = 0
+    ADD = 1
+    REMOVE = 2

@@ -1,8 +1,7 @@
-import os
+import logging
 from tkinter import *
 from tkinter import filedialog
 
-from src import Util
 from src.DataPacket import DataPacket
 from src.DataPacketDocumentEdit import DataPacketDocumentEdit
 from src.NetworkActionHandler import NetworkActionHandler
@@ -35,6 +34,8 @@ class Window:
         self.net_hand = NetworkHandler()
         self.nah = NetworkActionHandler()
         self.net_hand.add_network_action_handler(self.nah)
+
+        self.log = logging.getLogger('jumpy')
 
         self.create()
 
@@ -87,10 +88,13 @@ class Window:
     def edit(self):
         pass
 
-    old_text = None
-
     def keypress_handler(self, event):
-        self.net_hand.send_packet("test")
-        # packet = DataPacketDocumentEdit(old_text=self.old_text, new_text=self.text.get("1.0", END))
-        # self.net_hand.send_packet(packet)
-        # self.old_text = self.text.get("1.0", END)
+        """
+        This needs to be fixed. currently the text is updated after this keypress is registered, and therefore
+        the updating is allways a character beind.
+        """
+        self.log.debug('key pres, text: \'{}\''.format(repr(self.text.get("1.0", END))))
+        packet = DataPacketDocumentEdit(old_text=self.old_text, new_text=self.text.get("1.0", END))
+        self.net_hand.send_packet(packet)
+        self.old_text = self.text.get("1.0", END)
+

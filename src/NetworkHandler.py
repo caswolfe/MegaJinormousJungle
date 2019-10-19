@@ -89,7 +89,8 @@ class NetworkHandler:
         Broadcasts the specified packet to all peers.
         """
         if isinstance(packet, DataPacket.DataPacket):
-            pass
+            packet.set_time_of_send()
+            self.mc.publish(self.TOPIC, packet.get_json())
         else:
             self.mc.publish(self.TOPIC, packet)
 
@@ -97,7 +98,9 @@ class NetworkHandler:
         self.log.info('connected')
 
     def mqtt_on_message(self, client, userdata, msg):
-        self.log.info('received: \'{}\''.format(msg.payload))
+        # self.log.info('received: \'{}\''.format(msg.payload))
+        for nah in self.nahs:
+            nah.parse_message(msg.payload)
 
     def mqtt_on_subscribe(self, client, obj, mid, granted_qos):
         self.log.info('subscribed')
