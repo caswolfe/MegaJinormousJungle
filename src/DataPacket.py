@@ -1,4 +1,6 @@
 import uuid
+import pickle
+import codecs
 
 
 class DataPacket:
@@ -11,3 +13,10 @@ class DataPacket:
 
     def get_doc_hash(self) -> int:
         pass
+
+    def get_pickle(self):
+        pass
+
+
+def get_packet_from_pickled_str(string: str):
+    pass

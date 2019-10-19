@@ -1,10 +1,8 @@
 import configparser
 import paho.mqtt.client as mqtt
 import logging
-import pickle
-import codecs
 
-from src.DataPacket import DataPacket
+from src import DataPacket
 from src.NetworkActionHandler import NetworkActionHandler
 
 
@@ -90,10 +88,8 @@ class NetworkHandler:
         """
         Broadcasts the specified packet to all peers.
         """
-        if isinstance(packet, DataPacket):
-            # data = pickle.dumps(packet)
-            data = codecs.encode(pickle.dumps(packet), "base64").decode()
-            self.mc.publish(self.TOPIC, str(data))
+        if isinstance(packet, DataPacket.DataPacket):
+            pass
         else:
             self.mc.publish(self.TOPIC, packet)
 
@@ -101,12 +97,7 @@ class NetworkHandler:
         self.log.info('connected')
 
     def mqtt_on_message(self, client, userdata, msg):
-        self.log.info('r: \'{}\''.format(msg))
-        packet = pickle.loads(codecs.decode(msg.encode(), "Base64"))
-        if input(packet, DataPacket):
-            self.log.debug('received: {}'.format(packet))
-            for nah in self.nahs:
-                nah.parse_packet(packet)
+        self.log.info('received: \'{}\''.format(msg.payload))
 
     def mqtt_on_subscribe(self, client, obj, mid, granted_qos):
         self.log.info('subscribed')

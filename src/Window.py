@@ -90,6 +90,7 @@ class Window:
     old_text = None
 
     def keypress_handler(self, event):
-        packet = DataPacketDocumentEdit(old_text=self.old_text, new_text=self.text.get("1.0", END))
-        self.net_hand.send_packet(packet)
-        self.old_text = self.text.get("1.0", END)
+        self.net_hand.send_packet("test")
+        # packet = DataPacketDocumentEdit(old_text=self.old_text, new_text=self.text.get("1.0", END))
+        # self.net_hand.send_packet(packet)
+        # self.old_text = self.text.get("1.0", END)
