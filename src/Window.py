@@ -60,8 +60,7 @@ class Window:
         # cleanup
         self.root.config(menu=self.menu_bar)
         self.text.pack()
-        self.text.bind('<Key>', self.keypress_handler)
-
+        self.text.bind_all('<Key>', self.keypress_handler)
         self.old_text = self.text.get("1.0", END)
 
     def show(self) -> None:
