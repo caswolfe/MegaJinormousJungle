@@ -35,7 +35,10 @@ class NetworkActionHandler:
                 position = int(position_str)
                 text_current = self.window.text.get("1.0", END)
                 if action == Action.ADD:
+                    self.log.debug('inserting new text')
                     text_new = text_current[:position] + character_str + text_current[:position]
+                    self.log.debug('old text: {}'.format(text_current))
+                    self.log.debug('new text: {}'.format(text_new))
                     self.window.text.update(1.0, text_new)
             else:
                 self.log.warning('Unknown packet type: \'{}\''.format(packet_name))
