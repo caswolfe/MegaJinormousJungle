@@ -2,8 +2,8 @@ import configparser
 import paho.mqtt.client as mqtt
 import logging
 
-import DataPacket
-from NetworkActionHandler import NetworkActionHandler
+import src.DataPacket
+from src.NetworkActionHandler import NetworkActionHandler
 
 
 class NetworkHandler:

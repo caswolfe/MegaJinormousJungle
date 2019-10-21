@@ -1,7 +1,7 @@
 import json
 import logging
 
-from DataPacket import DataPacket
+from src.DataPacket import DataPacket
 
 
 class NetworkActionHandler():

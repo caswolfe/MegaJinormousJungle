@@ -4,7 +4,7 @@ from enum import Enum
 import logging
 import json
 
-from DataPacket import DataPacket
+from src.DataPacket import DataPacket
 
 
 class DataPacketDocumentEdit(DataPacket):
