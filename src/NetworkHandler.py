@@ -2,7 +2,7 @@ import configparser
 import paho.mqtt.client as mqtt
 import logging
 
-import src.DataPacket
+from src import DataPacket
 from src.NetworkActionHandler import NetworkActionHandler
 
 
