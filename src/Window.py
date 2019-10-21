@@ -89,6 +89,7 @@ class Window:
         pass
 
     def update_text(self, packet: DataPacketDocumentEdit):
+        self.log.debug('updating text with DataPacketDocumentEdit')
         data_dict = packet.get_json()
         action_str = data_dict.get('action')
         position_str = data_dict.get('position')
