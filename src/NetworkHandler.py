@@ -3,8 +3,16 @@ import configparser
 import paho.mqtt.client as mqtt
 import logging
 
-from src import DataPacket
-from src.NetworkActionHandler import NetworkActionHandler
+try:
+    from src import DataPacket
+    from src.NetworkActionHandler import NetworkActionHandler
+except ImportError as ie:
+    try:
+        # TODO: linux imports
+        pass
+    except ImportError as ie2:
+        print('cant import???')
+        exit(-1)
 
 
 class NetworkHandler:

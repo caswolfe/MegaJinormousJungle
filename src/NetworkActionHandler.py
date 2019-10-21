@@ -1,12 +1,18 @@
 import json
 import logging
 import uuid
-from tkinter import END
 
-from src.DataPacket import DataPacket
-from src.DataPacketDocumentEdit import Action
-from src import Window
-
+try:
+    from src.DataPacket import DataPacket
+    from src.DataPacketDocumentEdit import Action
+    from src import Window
+except ImportError as ie:
+    try:
+        # TODO: linux imports
+        pass
+    except ImportError as ie2:
+        print('cant import???')
+        exit(-1)
 
 class NetworkActionHandler:
     
@@ -27,7 +33,6 @@ class NetworkActionHandler:
                 self.log.debug('Received a DataPacket')
             elif packet_name == 'DataPacketDocumentEdit':
                 self.log.debug('Received a DataPacketDocumentEdit')
-                self.log.debug(data_dict)
                 action_str = data_dict.get('action')
                 position_str = data_dict.get('position')
                 character_str = data_dict.get('character')

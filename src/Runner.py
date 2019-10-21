@@ -1,9 +1,16 @@
 import os
-
-from src import Util
-from src.Window import Window
 import logging
 
+try:
+    from src import Util
+    from src.Window import Window
+except ImportError as ie:
+    try:
+        # TODO: linux imports
+        pass
+    except ImportError as ie2:
+        print('cant import???')
+        exit(-1)
 
 # basic logging init
 log = logging.getLogger('jumpy')

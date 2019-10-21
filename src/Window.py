@@ -2,9 +2,17 @@ import logging
 from tkinter import *
 from tkinter import filedialog
 
-from src.DataPacketDocumentEdit import DataPacketDocumentEdit, Action
-from src.NetworkActionHandler import NetworkActionHandler
-from src.NetworkHandler import NetworkHandler
+try:
+    from src.DataPacketDocumentEdit import DataPacketDocumentEdit, Action
+    from src.NetworkActionHandler import NetworkActionHandler
+    from src.NetworkHandler import NetworkHandler
+except ImportError as ie:
+    try:
+        # TODO: linux imports
+        pass
+    except ImportError as ie2:
+        print('cant import???')
+        exit(-1)
 
 
 class Window:
@@ -89,18 +97,15 @@ class Window:
         pass
 
     def update_text(self, action: Action, position: int, character: str):
-        self.log.debug('updating text with action: \'{}\', position: \'{}\', character: \'{}\'')
-        self.log.debug('action: {}'.format(action))
+        self.log.debug('updating text with action: \'{}\', position: \'{}\', character: \'{}\''.format(action, position, character))
         text_current = self.text.get("1.0", END)
         if action == Action.ADD:
             # TODO: fix
-            self.log.debug('inserting new text')
             text_new = text_current[:position] + character + text_current[:position]
-            self.log.debug('old text: {}'.format(repr(text_current)))
-            self.log.debug('new text: {}'.format(repr(text_new)))
             self.text.delete(1.0, END)
             self.text.update(1.0, text_new)
         elif action == Action.REMOVE:
+            # TODO: implement
             pass
 
     def keypress_handler(self, event):

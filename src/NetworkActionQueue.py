@@ -1,6 +1,16 @@
-import src.DataPacket
 import heapq
 import time
+
+try:
+    from src.DataPacket import DataPacket
+except ImportError as ie:
+    try:
+        # TODO: linux imports
+        pass
+    except ImportError as ie2:
+        print('cant import???')
+        exit(-1)
+
 
 class ActionQueue():
 
