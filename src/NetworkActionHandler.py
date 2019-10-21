@@ -28,18 +28,19 @@ class NetworkActionHandler:
             elif packet_name == 'DataPacketDocumentEdit':
                 self.log.debug('Received a DataPacketDocumentEdit')
                 self.log.debug(data_dict)
-                action_str = data_dict.get('action')
-                position_str = data_dict.get('position')
-                character_str = data_dict.get('character')
-                action = Action(int(action_str))
-                position = int(position_str)
-                text_current = self.window.text.get("1.0", END)
-                if action == Action.ADD:
-                    self.log.debug('inserting new text')
-                    text_new = text_current[:position] + character_str + text_current[:position]
-                    self.log.debug('old text: {}'.format(repr(text_current)))
-                    self.log.debug('new text: {}'.format(repr(text_new)))
-                    self.window.text.delete(1.0, END)
-                    self.window.text.update(1.0, text_new)
+                self.window.update_text(packet)
+                # action_str = data_dict.get('action')
+                # position_str = data_dict.get('position')
+                # character_str = data_dict.get('character')
+                # action = Action(int(action_str))
+                # position = int(position_str)
+                # text_current = self.window.text.get("1.0", END)
+                # if action == Action.ADD:
+                #     self.log.debug('inserting new text')
+                #     text_new = text_current[:position] + character_str + text_current[:position]
+                #     self.log.debug('old text: {}'.format(repr(text_current)))
+                #     self.log.debug('new text: {}'.format(repr(text_new)))
+                #     self.window.text.delete(1.0, END)
+                #     self.window.text.update(1.0, text_new)
             else:
                 self.log.warning('Unknown packet type: \'{}\''.format(packet_name))

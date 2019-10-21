@@ -2,7 +2,7 @@ import logging
 from tkinter import *
 from tkinter import filedialog
 
-from src.DataPacketDocumentEdit import DataPacketDocumentEdit
+from src.DataPacketDocumentEdit import DataPacketDocumentEdit, Action
 from src.NetworkActionHandler import NetworkActionHandler
 from src.NetworkHandler import NetworkHandler
 
@@ -87,6 +87,22 @@ class Window:
 
     def edit(self):
         pass
+
+    def update_text(self, packet: DataPacketDocumentEdit):
+        data_dict = packet.get_json()
+        action_str = data_dict.get('action')
+        position_str = data_dict.get('position')
+        character_str = data_dict.get('character')
+        action = Action(int(action_str))
+        position = int(position_str)
+        text_current = self.window.text.get("1.0", END)
+        if action == Action.ADD:
+            self.log.debug('inserting new text')
+            text_new = text_current[:position] + character_str + text_current[:position]
+            self.log.debug('old text: {}'.format(repr(text_current)))
+            self.log.debug('new text: {}'.format(repr(text_new)))
+            self.window.text.delete(1.0, END)
+            self.window.text.update(1.0, text_new)
 
     def keypress_handler(self, event):
         """
