@@ -88,22 +88,20 @@ class Window:
     def edit(self):
         pass
 
-    def update_text(self, packet: DataPacketDocumentEdit):
-        self.log.debug('updating text with DataPacketDocumentEdit')
-        data_dict = packet.get_json()
-        action_str = data_dict.get('action')
-        position_str = data_dict.get('position')
-        character_str = data_dict.get('character')
-        action = Action(int(action_str))
-        position = int(position_str)
+    def update_text(self, action: Action, position: int, character: str):
+        self.log.debug('updating text with action: \'{}\', position: \'{}\', character: \'{}\'')
+        self.log.debug('action: {}'.format(action))
         text_current = self.text.get("1.0", END)
         if action == Action.ADD:
+            # TODO: fix
             self.log.debug('inserting new text')
-            text_new = text_current[:position] + character_str + text_current[:position]
+            text_new = text_current[:position] + character + text_current[:position]
             self.log.debug('old text: {}'.format(repr(text_current)))
             self.log.debug('new text: {}'.format(repr(text_new)))
             self.text.delete(1.0, END)
             self.text.update(1.0, text_new)
+        elif action == Action.REMOVE:
+            pass
 
     def keypress_handler(self, event):
         """

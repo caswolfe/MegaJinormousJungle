@@ -28,6 +28,11 @@ class NetworkActionHandler:
             elif packet_name == 'DataPacketDocumentEdit':
                 self.log.debug('Received a DataPacketDocumentEdit')
                 self.log.debug(data_dict)
-                self.window.update_text(packet)
+                action_str = data_dict.get('action')
+                position_str = data_dict.get('position')
+                character_str = data_dict.get('character')
+                action = Action(int(action_str))
+                position = int(position_str)
+                self.window.update_text(action, position, character_str)
             else:
                 self.log.warning('Unknown packet type: \'{}\''.format(packet_name))
