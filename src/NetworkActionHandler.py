@@ -39,6 +39,7 @@ class NetworkActionHandler:
                     text_new = text_current[:position] + character_str + text_current[:position]
                     self.log.debug('old text: {}'.format(repr(text_current)))
                     self.log.debug('new text: {}'.format(repr(text_new)))
+                    self.window.text.delete(1.0, END)
                     self.window.text.update(1.0, text_new)
             else:
                 self.log.warning('Unknown packet type: \'{}\''.format(packet_name))
