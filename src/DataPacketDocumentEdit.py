@@ -17,17 +17,21 @@ class DataPacketDocumentEdit(DataPacket):
             self.log.debug('{} => {}'.format(repr(old_text), repr(new_text)))
             for i, s in enumerate(difflib.ndiff(old_text, new_text)):
                 if s[0] == ' ':
-                    self.action = Action.NONE
-                    self.position = -1
-                    self.character = ''
+                    # self.action = Action.NONE
+                    # self.position = -1
+                    # self.character = ''
+                    # self.log.debug('None')
+                    pass
                 elif s[0] == '-':
                     self.action = Action.REMOVE
                     self.position = i
                     self.character = s[-1]
+                    self.log.debug('Delete \'{}\' from position \'{}\''.format(self.character, self.position))
                 elif s[0] == '+':
                     self.action = Action.ADD
                     self.position = i
                     self.character = s[-1]
+                    self.log.debug('Add \'{}\' to position \'{}\''.format(self.character, self.position))
             self.data_dict.update({'action': self.action.value})
             self.data_dict.update({'position': self.position})
             self.data_dict.update({'character': self.character})

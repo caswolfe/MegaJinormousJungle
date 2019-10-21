@@ -1,4 +1,6 @@
 import configparser
+import uuid
+
 import paho.mqtt.client as mqtt
 import logging
 
@@ -12,6 +14,8 @@ class NetworkHandler:
     """
 
     TOPIC = 'jumpy-coms'
+
+    is_connected = False
 
     def __init__(self):
 
@@ -33,6 +37,9 @@ class NetworkHandler:
         # network action handler setup
         self.nahs = list()
 
+        # misc
+        # self.mac = hex(uuid.getnode())
+
     def establish_connection(self) -> bool:
         """
         Establishes a connection to a peer.
@@ -42,12 +49,14 @@ class NetworkHandler:
         self.mc.connect(self.config['MQTT']['host'], int(self.config['MQTT']['port']))
         self.mc.subscribe(self.TOPIC, 0)
         self.mc.loop_start()
+        self.is_connected = True
 
     def close_connection(self) -> None:
         """
         Closes the connection with a peer.
         """
 
+        self.is_connected = False
         self.log.debug('disconnecting')
         self.mc.unsubscribe(self.TOPIC)
         self.mc.loop_stop()
@@ -90,6 +99,7 @@ class NetworkHandler:
         """
         if isinstance(packet, DataPacket.DataPacket):
             packet.set_time_of_send()
+            self.log.debug('sending: {}'.format(packet.get_json()))
             self.mc.publish(self.TOPIC, packet.get_json())
         else:
             self.mc.publish(self.TOPIC, packet)

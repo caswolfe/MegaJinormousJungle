@@ -28,6 +28,8 @@ class Window:
 
     currentFile = None
 
+    old_text = ""
+
     def __init__(self):
 
         self.net_hand = NetworkHandler()
@@ -91,8 +93,9 @@ class Window:
         This needs to be fixed. currently the text is updated after this keypress is registered, and therefore
         the updating is allways a character beind.
         """
-        self.log.debug('key pres, text: \'{}\''.format(repr(self.text.get("1.0", END))))
-        packet = DataPacketDocumentEdit(old_text=self.old_text, new_text=self.text.get("1.0", END))
-        self.net_hand.send_packet(packet)
+        if self.net_hand.is_connected:
+            packet = DataPacketDocumentEdit(old_text=self.old_text, new_text=self.text.get("1.0", END))
+            self.net_hand.send_packet(packet)
+
         self.old_text = self.text.get("1.0", END)
 
