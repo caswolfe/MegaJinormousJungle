@@ -12,6 +12,12 @@ class DataPacketDocumentEdit(DataPacket):
     def __init__(self, old_text: str = None, new_text: str = None, json_str: str = None):
         super().__init__()
         self.log = logging.getLogger('jumpy')
+
+        # default values
+        self.action = Action.NONE
+        self.position = -1
+        self.character = ''
+
         if json_str is None:
             self.old_text_hash = hashlib.sha1(old_text.encode()).hexdigest()
             self.log.debug('{} => {}'.format(repr(old_text), repr(new_text)))

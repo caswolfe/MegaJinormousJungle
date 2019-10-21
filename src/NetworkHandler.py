@@ -1,5 +1,4 @@
 import configparser
-import uuid
 
 import paho.mqtt.client as mqtt
 import logging

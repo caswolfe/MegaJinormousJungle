@@ -1,15 +1,19 @@
 import json
 import logging
 import uuid
+from tkinter import END
 
 from src.DataPacket import DataPacket
+from src.DataPacketDocumentEdit import Action
+from src import Window
 
 
-class NetworkActionHandler():
+class NetworkActionHandler:
     
     queue = None
 
-    def __init__(self):
+    def __init__(self, window: Window):
+        self.window = window
         self.log = logging.getLogger('jumpy')
         self.mac = hex(uuid.getnode())
 
@@ -24,5 +28,14 @@ class NetworkActionHandler():
             elif packet_name == 'DataPacketDocumentEdit':
                 self.log.debug('Received a DataPacketDocumentEdit')
                 self.log.debug(data_dict)
+                action_str = data_dict.get('action')
+                position_str = data_dict.get('position')
+                character_str = data_dict.get('character')
+                action = Action(int(action_str))
+                position = int(position_str)
+                text_current = self.window.text.get("1.0", END)
+                if action == Action.ADD:
+                    text_new = text_current[:position] + character_str + text_current[:position]
+                    self.window.text.update(1.0, text_new)
             else:
                 self.log.warning('Unknown packet type: \'{}\''.format(packet_name))

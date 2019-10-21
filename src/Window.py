@@ -33,7 +33,7 @@ class Window:
     def __init__(self):
 
         self.net_hand = NetworkHandler()
-        self.nah = NetworkActionHandler()
+        self.nah = NetworkActionHandler(self)
         self.net_hand.add_network_action_handler(self.nah)
 
         self.log = logging.getLogger('jumpy')
