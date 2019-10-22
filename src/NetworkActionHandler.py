@@ -27,7 +27,6 @@ class NetworkActionHandler:
 
     def parse_message(self, packet: DataPacket):
         data_dict = json.loads(packet)
-        #self.log.debug(data_dict)
         packet_name = data_dict.get('packet-name')
         if data_dict.get('mac-addr') == self.mac:
             self.log.debug('received packet from self, ignoring...')
@@ -36,11 +35,13 @@ class NetworkActionHandler:
                 self.log.debug('Received a DataPacket')
             elif packet_name == 'DataPacketDocumentEdit':
                 self.log.debug('Received a DataPacketDocumentEdit')
-                action_str = data_dict.get('action')
-                position_str = data_dict.get('position')
-                character_str = data_dict.get('character')
-                action = Action(int(action_str))
-                position = int(position_str)
-                self.window.update_text(action, position, character_str)
+                self.log.debug(data_dict)
+                # action_str = data_dict.get('action')
+                # position_str = data_dict.get('position')
+                # character_str = data_dict.get('character')
+                # action = Action(int(action_str))
+                # position = int(position_str)
+                # self.window.update_text(action, position, character_str)
+                self.window.set_text(data_dict.get('new_text'))
             else:
                 self.log.warning('Unknown packet type: \'{}\''.format(packet_name))

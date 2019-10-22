@@ -25,6 +25,7 @@ class DataPacketDocumentEdit(DataPacket):
         self.action = Action.NONE
         self.position = -1
         self.character = ''
+        self.data_dict.update({'new_text': repr(new_text)})
 
         if json_str is None:
             self.old_text_hash = hashlib.sha1(old_text.encode()).hexdigest()

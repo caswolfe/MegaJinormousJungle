@@ -101,7 +101,7 @@ class Window:
         self.log.debug('updating text with action: \'{}\', position: \'{}\', character: \'{}\''.format(action, position, repr(character)))
         text_current = self.text.get("1.0", END)
         text_new = text_current[1:position+1] + character + text_current[position+1:]
-        self.log.debug(f"current text:{text_current} \n updated text {text_new}")
+        self.log.debug(f"current text:{repr(text_current)} \n updated text {repr(text_new)}")
         self.text.delete("1.0", END)
         self.text.insert("1.0", text_new)
         # n = 1
@@ -116,6 +116,10 @@ class Window:
         # elif action == Action.REMOVE:
         #     # TODO: implement
         #     pass
+
+    def set_text(self, new_text: str):
+        self.text.delete("1.0", END)
+        self.text.insert("1.0", new_text)
 
     def keypress_handler(self, event):
         """
