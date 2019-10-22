@@ -7,7 +7,8 @@ try:
 except ImportError as ie:
     try:
         # TODO: linux imports
-        pass
+        import Util
+        from Window import Window
     except ImportError as ie2:
         print('cant import???')
         exit(-1)
