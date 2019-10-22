@@ -105,3 +105,4 @@ venv.bak/
 
 # manual additions
 /config.ini
+/.vscode/
