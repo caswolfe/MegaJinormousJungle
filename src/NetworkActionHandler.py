@@ -9,7 +9,9 @@ try:
 except ImportError as ie:
     try:
         # TODO: linux imports
-        pass
+        from DataPacket import DataPacket
+        from DataPacketDocumentEdit import Action
+        import Window
     except ImportError as ie2:
         print('cant import???')
         exit(-1)

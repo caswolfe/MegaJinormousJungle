@@ -9,7 +9,10 @@ try:
 except ImportError as ie:
     try:
         # TODO: linux imports
-        pass
+        print("fuck")
+        from DataPacketDocumentEdit import DataPacketDocumentEdit, Action
+        from NetworkActionHandler import NetworkActionHandler
+        from NetworkHandler import NetworkHandler
     except ImportError as ie2:
         print('cant import???')
         exit(-1)

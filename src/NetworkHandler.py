@@ -8,8 +8,8 @@ try:
     from src.NetworkActionHandler import NetworkActionHandler
 except ImportError as ie:
     try:
-        # TODO: linux imports
-        pass
+        import DataPacket
+        from NetworkActionHandler import NetworkActionHandler
     except ImportError as ie2:
         print('cant import???')
         exit(-1)
