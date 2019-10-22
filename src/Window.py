@@ -1,6 +1,6 @@
 import logging
 from tkinter import *
-from tkinter import filedialog
+from tkinter import filedialog, messagebox
 
 try:
     from src.DataPacketDocumentEdit import DataPacketDocumentEdit, Action
@@ -62,6 +62,7 @@ class Window:
 
         # file sub-menu
         self.menu_file.add_command(label="Open", command=self.open_file)
+        self.menu_file.add_command(label="Save", command=self.save_file)
 
         # connections sub-menu
         self.menu_connections.add_command(label='Connect', command=self.net_hand.establish_connection)
@@ -93,6 +94,13 @@ class Window:
             f = open(self.currentFile, "r")
             self.text.insert(1.0, f.read())
             f.close()
+
+    def save_file(self) -> None:
+        f = filedialog.asksaveasfilename(defaultextension=".py")
+        to_save_file = open(f, 'w')
+        to_save_file.write(self.text.get("1.0", END))
+        to_save_file.close()
+        messagebox.showinfo('penis', "is saved")
 
     def edit(self):
         pass
