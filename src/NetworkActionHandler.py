@@ -27,6 +27,7 @@ class NetworkActionHandler:
 
     def parse_message(self, packet: DataPacket):
         data_dict = json.loads(packet)
+        #self.log.debug(data_dict)
         packet_name = data_dict.get('packet-name')
         if data_dict.get('mac-addr') == self.mac:
             self.log.debug('received packet from self, ignoring...')

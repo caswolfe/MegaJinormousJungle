@@ -98,20 +98,24 @@ class Window:
         pass
 
     def update_text(self, action: Action, position: int, character: str):
-        self.log.debug('updating text with action: \'{}\', position: \'{}\', character: \'{}\''.format(action, position, character))
+        self.log.debug('updating text with action: \'{}\', position: \'{}\', character: \'{}\''.format(action, position, repr(character)))
         text_current = self.text.get("1.0", END)
-        n = 1
-        if action == Action.ADD:
-            # TODO: fix
-            #text_new = text_current[:position] + character + text_current[:position]
-            text_new = character
-            if text_new == "\n":
-                n+=1
-            self.log.debug("%d.%d"%(n,position))
-            self.text.insert("%d.%d"%(n,position), text_new)
-        elif action == Action.REMOVE:
-            # TODO: implement
-            pass
+        text_new = text_current[1:position+1] + character + text_current[position+1:]
+        self.log.debug(f"current text:{text_current} \n updated text {text_new}")
+        self.text.delete("1.0", END)
+        self.text.insert("1.0", text_new)
+        # n = 1
+        # if action == Action.ADD:
+        #     # TODO: fix#
+        #     #
+        #     text_new = character
+        #     if text_new == "\n":
+        #         n+=1
+        #     self.log.debug("%d.%d"%(n,position))
+        #     #self.text.insert("%d.%d"%(n,position), text_new)
+        # elif action == Action.REMOVE:
+        #     # TODO: implement
+        #     pass
 
     def keypress_handler(self, event):
         """
