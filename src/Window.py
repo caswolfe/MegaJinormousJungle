@@ -131,8 +131,7 @@ class Window:
 
     def keypress_handler(self, event):
         """
-        This needs to be fixed. currently the text is updated after this keypress is registered, and therefore
-        the updating is allways a character beind.
+        TODO: Don't interpret all keypress as somthing to be sent e.g. don't send _alt_
         """
         if self.net_hand.is_connected:
             packet = DataPacketDocumentEdit(old_text=self.old_text, new_text=self.text.get("1.0", END))
