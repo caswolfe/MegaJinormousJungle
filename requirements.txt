@@ -1,2 +1,3 @@
 config-parser
 paho-mqtt
+pytest
