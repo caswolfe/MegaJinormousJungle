@@ -4,13 +4,16 @@ import logging
 try:
     from src import Util
     from src.Window import Window
+    print("Windows imports success")
 except ImportError as ie:
     try:
         # TODO: linux imports
+        print("Windows imports failed")
         import Util
         from Window import Window
+        print("Linux imports success")
     except ImportError as ie2:
-        print('cant import???')
+        print('completly fucked')
         exit(-1)
 
 # basic logging init
