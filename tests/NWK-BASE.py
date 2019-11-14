@@ -5,6 +5,7 @@ HOST = "postman.cloudmqtt.com"
 PORT = 13272
 USERNAME = "jumpy-user"
 PASSWORD = "password"
+TOPIC = "testing"
 
 
 class MQTTHelper:
@@ -21,11 +22,26 @@ class MQTTHelper:
         client.on_subscribe = self.on_subscribe
         client.on_publish = self.on_publish
 
+        #
         # setting up variables for testing / asserting
+        #
+
+        # on_connect
         self.on_connect_last_client = None
         self.on_connect_last_userdata = None
         self.on_connect_last_flags = None
         self.on_connect_last_rc = None
+
+        # on_message
+        self.on_message_last_client = None
+        self.on_message_last_userdata = None
+        self.on_message_last_msg = None
+
+        # on_subscribe
+        self.on_subscribe_last_client = None
+        self.on_subscribe_last_obj = None
+        self.on_subscribe_last_mid = None
+        self.on_subscribe_last_granted_qos = None
 
     def on_connect(self, client, userdata, flags, rc):
         self.on_connect_last_client = client
@@ -34,10 +50,15 @@ class MQTTHelper:
         self.on_connect_last_rc = rc
 
     def on_message(self, client, userdata, msg):
-        print("on_message")
+        self.on_message_last_client = client
+        self.on_message_last_userdata = userdata
+        self.on_message_last_msg = msg
 
     def on_subscribe(self, client, obj, mid, granted_qos):
-        print("on_subscribe")
+        self.on_subscribe_last_client = client
+        self.on_subscribe_last_obj = obj
+        self.on_subscribe_last_mid = mid
+        self.on_subscribe_last_granted_qos = granted_qos
 
     def on_publish(self):
         print("on_publish")
@@ -81,23 +102,48 @@ class MyTestCase(unittest.TestCase):
         time.sleep(1)
 
         # test that the client connect
+        assert mqtt_helper.on_connect_last_client == client
         assert mqtt_helper.on_connect_last_rc == 0
 
         # cleanup
         client.loop_stop()
         client.disconnect()
 
-    # @staticmethod
-    # def test_NWK_3():
-    #     """
-    #     Tests subscribing to a topic on a MQTT server with paho-mqtt
-    #     """
-    #     assert 1 == 1
+    @staticmethod
+    def test_NWK_3():
+        """
+        Tests subscribing to a topic on a MQTT server with paho-mqtt
+        """
+
+        # imports
+        import paho.mqtt.client as mqtt
+        import time
+
+        # backend setup
+        client = mqtt.Client()
+        mqtt_helper = MQTTHelper(client)
+
+        # mqtt client setup
+        client.username_pw_set(USERNAME, PASSWORD)
+        client.connect(HOST, PORT)
+        client.subscribe(TOPIC, 0)
+        client.loop_start()
+
+        # sleep to allow network traffic
+        time.sleep(1)
+
+        # test that the client subscribed
+        assert mqtt_helper.on_subscribe_last_client == client
+
+        # cleanup
+        client.loop_stop()
+        client.unsubscribe(TOPIC)
+        client.disconnect()
 
     # @staticmethod
     # def test_NWK_4():
     #     """
-    #     Tests publishing top a topic on a MQTT server with paho-mqtt
+    #     Tests publishing to a topic on a MQTT server with paho-mqtt
     #     """
     #     assert 1 == 1
 
