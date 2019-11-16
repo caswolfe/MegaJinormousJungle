@@ -2,19 +2,23 @@ import logging
 from tkinter import *
 from tkinter import filedialog, messagebox
 
-try:
-    from src.DataPacketDocumentEdit import DataPacketDocumentEdit, Action
-    from src.NetworkActionHandler import NetworkActionHandler
-    from src.NetworkHandler import NetworkHandler
-except ImportError as ie:
-    try:
-        # TODO: linux imports
-        from DataPacketDocumentEdit import DataPacketDocumentEdit, Action
-        from NetworkActionHandler import NetworkActionHandler
-        from NetworkHandler import NetworkHandler
-    except ImportError as ie2:
-        print('cant import???')
-        exit(-1)
+
+# try:
+#     from src.DataPacketDocumentEdit import DataPacketDocumentEdit, Action
+#     from src.NetworkActionHandler import NetworkActionHandler
+#     from src.NetworkHandler import NetworkHandler
+# except ImportError as ie:
+#     try:
+#         # TODO: linux imports
+from DataPacketDocumentEdit import DataPacketDocumentEdit, Action
+from NetworkActionHandler import NetworkActionHandler
+from NetworkHandler import NetworkHandler
+from NetworkActionQueue import ActionQueue
+from PySyntaxHandler import Syntax
+        
+    # except ImportError as ie2:
+    #     print('cant import???')
+    #     exit(-1)
 
 class Window:
     """
@@ -105,7 +109,7 @@ class Window:
     def edit(self):
         pass
 
-    def update_text(self, action: Action, position: int, character: str):
+    def update_text(self, action: Action, position: int, character: str, q: ActionQueue):
         self.log.debug('updating text with action: \'{}\', position: \'{}\', character: \'{}\''.format(action, position, repr(character)))
         text_current = self.text.get("1.0", END)
         text_new = text_current[1:position+1] + character + text_current[position+1:]
@@ -126,16 +130,81 @@ class Window:
         #     pass
 
     def set_text(self, new_text: str):
+        """
+        Sets the text on the Text object directly.
+        Author: Chad
+        Args: new_text: string
+        Returns: 
+        """
         self.text.delete("1.0", END)
         self.text.insert("1.0", new_text)
 
     def keypress_handler(self, event):
         """
+        Interpret keypresses on the local machine and send them off to be processed as
+        a data packet. Keeps track of one-edit lag.
         TODO: Don't interpret all keypress as somthing to be sent e.g. don't send _alt_
+        Authors: Chad, Ben
+        Args: event: str unused?
+        Returns:
+        Interactions: sends DataPacketDocumentEdit
         """
         if self.net_hand.is_connected:
-            packet = DataPacketDocumentEdit(old_text=self.old_text, new_text=self.text.get("1.0", END))
-            self.net_hand.send_packet(packet)
-
+            new_text = self.text.get("1.0", END)
+            packet = DataPacketDocumentEdit(old_text=self.old_text, new_text=new_text)
+            if packet.character == '' or new_text == self.old_text:
+                return
+            else:
+                self.net_hand.send_packet(packet)
+        self.syntax_highlighting()
         self.old_text = self.text.get("1.0", END)
 
+    def syntax_highlighting(self, lang = 'python'):
+        """
+        Highlights key elements of syntax with a color as defined in the 
+        language's SyntaxHandler. Only 'python' is currently implemented,   
+        but more can easily be added in the future.
+        Author: Ben
+        Args: lang: string, which language to use
+        Returns: 
+
+        TODO: fix so keywords inside another keyword aren't highlighted
+        TODO: make so that it doesn't trigger after every character
+        TODO: run on seperate thread at interval or trigger (perhaps at spacebar? would reduce work)
+        """
+        for tag in self.text.tag_names():
+            self.text.tag_delete(tag)
+        if lang == 'python':
+            SyntaxHandler = Syntax()
+
+        syntax_dict = SyntaxHandler.get_color_dict()
+        for kw in SyntaxHandler.get_keywords():
+            idx = '1.0'
+            color = syntax_dict[kw]
+            self.text.tag_config(color, foreground=color)
+            while idx:
+                idx = self.text.search(kw, idx, nocase=1, stopindex=END)
+                if idx:
+                    #self.log.debug(idx)
+                    nums = idx.split('.')
+                    nums = [int(x) for x in nums]
+                    right = f"{nums[0]}.{nums[0]+1}"
+                    left = f"{nums[0]}.{nums[0]-1}"
+                    #self.log.debug(f"{left} { right}")
+                    lastidx = '%s+%dc' % (idx, len(kw))
+                    self.text.tag_add(color, idx, lastidx)
+                    idx = lastidx
+            
+
+
+    def get_words(self):
+        """
+        Gets all words (definition: seperated by a space character) in the
+        Text object.
+        Author: Ben
+        Args: 
+        Returns: words: list a list a words in the Text object
+        """
+        words = self.text.get("1.0", END).split(" ")
+        return words
+        
