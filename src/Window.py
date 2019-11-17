@@ -182,14 +182,13 @@ class Window:
             idx = '1.0'
             color = syntax_dict[kw]
             self.text.tag_config(color, foreground=color)
+           # search_term =#rf'\\y{kw}\\y'   # ' '+ kw + ' '
             while idx:
-                idx = self.text.search(kw, idx, nocase=1, stopindex=END)
+                idx = self.text.search('\\y' + kw +'\\y', idx, nocase=1, stopindex=END, regexp=True)
                 if idx:
-                    #self.log.debug(idx)
+                    #self.log.debug(idx)    
                     nums = idx.split('.')
                     nums = [int(x) for x in nums]
-                    right = f"{nums[0]}.{nums[0]+1}"
-                    left = f"{nums[0]}.{nums[0]-1}"
                     #self.log.debug(f"{left} { right}")
                     lastidx = '%s+%dc' % (idx, len(kw))
                     self.text.tag_add(color, idx, lastidx)
