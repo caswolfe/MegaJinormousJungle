@@ -1,6 +1,7 @@
 import logging
 from tkinter import *
 from tkinter import filedialog, messagebox
+import os
 
 try:
     from src.DataPacketDocumentEdit import DataPacketDocumentEdit, Action
@@ -33,10 +34,19 @@ class Window:
     # connections sub-menu in the menu bar
     menu_connections = Menu(tearoff=False)
 
-    text = Text(root)
+    # frames for UX
+    top_frame = Frame(root)
+    bottom_frame = Frame(root)
+    files = Frame(top_frame)
 
-    currentFile = None
+    # functional frames
+    text = Text(top_frame)
+    terminal = Text(bottom_frame)
+    radio_frame = Scrollbar(files, orient="vertical")
 
+    # other variables
+    current_file_name = StringVar()
+    current_file = None
     old_text = ""
 
     def __init__(self):
@@ -49,30 +59,46 @@ class Window:
 
         self.create()
 
+    #TODO add line numbers to self.text
     def create(self) -> None:
         """
         Creates the window.
         """
 
-        self.root.title("Untitled")
+        self.root.title("jum.py")
+        self.root.bind('<Key>',self.handle_event)
 
         # menu bar
         self.menu_bar.add_cascade(label='File', menu=self.menu_file)
         self.menu_bar.add_cascade(label='Connections', menu=self.menu_connections)
 
         # file sub-menu
-        self.menu_file.add_command(label="Open", command=self.open_file)
+        self.menu_file.add_command(label="Open", command=self.open_folder)
         self.menu_file.add_command(label="Save", command=self.save_file)
 
         # connections sub-menu
         self.menu_connections.add_command(label='Connect', command=self.net_hand.establish_connection)
         self.menu_connections.add_command(label='Disconnect', command=self.net_hand.close_connection)
 
-        # cleanup
+        # add menubar to root
         self.root.config(menu=self.menu_bar)
-        self.text.pack()
-        self.text.bind_all('<Key>', self.keypress_handler)
+
+        # terminal default
+        self.terminal.insert(1.0,"Console:\n>>>  ")
+
+        #  text default
         self.old_text = self.text.get("1.0", END)
+
+        # visual effects
+        self.files.config(width=100, bg='light grey')
+        self.terminal.config(height= 10, borderwidth=5)
+
+        # visual packs
+        self.top_frame.pack(side="top",fill='both', expand=True)
+        self.bottom_frame.pack(side="bottom",fill='both', expand=True)        
+        self.files.pack(side="left",fill='both', expand=True)
+        self.text.pack(side="right",fill='both', expand=True)
+        self.terminal.pack(fill='both', expand=True)
 
     def show(self) -> None:
         """
@@ -80,30 +106,44 @@ class Window:
         """
         self.root.mainloop()
 
-    def open_file(self) -> None:
-        """
-        Prompts the user to open a file.
-        """
-        f = filedialog.askopenfilename(defaultextension=".txt",)
-        print(f)
-        if f is None or f == "":
-            self.currentFile = None
+    #TODO for folders with alot of files add a scrollbar, when file is changed clear terminal and change terminal directory (change ">>>" to "[directory path]>")
+    def open_folder(self):
+        location = filedialog.askdirectory()
+
+        if location != "":
+
+            #clear text and delete current radio buttons
+            self.text.delete("1.0", END)
+            self.radio_frame.destroy()
+            self.radio_frame = Scrollbar(self.files, orient="vertical")
+            self.radio_frame.pack()
+
+            folder = os.listdir(location)
+            for item in folder:
+                item_path = location+ "/" + item 
+                # condition so that folders that start with "." are not displayed
+                if os.path.isfile(item_path) or not item.startswith("."):
+                    Radiobutton(self.radio_frame, text = item, variable=self.current_file_name, command=self.open_item, value=item_path, indicator=0).pack(fill = 'x', ipady = 1)
+
+    #TODO add functionality to clicking on folders (change current folder to that folder, have a back button to go to original folder)
+    def open_item(self):
+        if os.path.isfile(self.current_file_name.get()):
+            self.text.delete("1.0", END)
+            file = open(self.current_file_name.get(), "r")
+            self.current_file = file
+            try:
+                self.text.insert(1.0, file.read())
+            except:
+                self.text.insert(1.0,"Can not interperate this file")
+            file.close()
         else:
-            self.currentFile = f
-            self.text.delete(1.0, END)
-            f = open(self.currentFile, "r")
-            self.text.insert(1.0, f.read())
-            f.close()
+            pass
 
     def save_file(self) -> None:
         f = filedialog.asksaveasfilename(defaultextension=".py")
         to_save_file = open(f, 'w')
         to_save_file.write(self.text.get("1.0", END))
         to_save_file.close()
-        messagebox.showinfo('penis', "is saved")
-
-    def edit(self):
-        pass
 
     def update_text(self, action: Action, position: int, character: str):
         self.log.debug('updating text with action: \'{}\', position: \'{}\', character: \'{}\''.format(action, position, repr(character)))
@@ -129,13 +169,22 @@ class Window:
         self.text.delete("1.0", END)
         self.text.insert("1.0", new_text)
 
-    def keypress_handler(self, event):
+    def handle_event(self, event):
         """
         TODO: Don't interpret all keypress as somthing to be sent e.g. don't send _alt_
         """
-        if self.net_hand.is_connected:
-            packet = DataPacketDocumentEdit(old_text=self.old_text, new_text=self.text.get("1.0", END))
-            self.net_hand.send_packet(packet)
+        if event.widget == self.terminal:
+            # handle terminal event
+            #TODO pipe command to terminal, prevent editing previous lines
+            if event.char == '\r':
+                self.terminal.insert(END,">>> ")
+            if event.char == '\x03':
+                self.terminal.delete("2.3",END)
+        elif event.widget == self.text:
+            # handle text event
+            if self.net_hand.is_connected:
+                packet = DataPacketDocumentEdit(old_text=self.old_text, new_text=self.text.get("1.0", END))
+                self.net_hand.send_packet(packet)
 
-        self.old_text = self.text.get("1.0", END)
+            self.old_text = self.text.get("1.0", END)
 
