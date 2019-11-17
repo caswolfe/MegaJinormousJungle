@@ -27,7 +27,7 @@ class testConnection(unittest.TestCase):
     Test creation of window
     """
     def testA(self):
-        self.window = Window()
+        self.window = Window.Window()
         assert self.window
 
     """
