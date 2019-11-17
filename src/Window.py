@@ -84,7 +84,7 @@ class Window:
         self.root.config(menu=self.menu_bar)
 
         # terminal default
-        self.terminal.insert(1.0,"Console:\n>>>  ")
+        self.terminal.insert(1.0,"Console:\n>>> ")
 
         #  text default
         self.old_text = self.text.get("1.0", END)
@@ -179,7 +179,7 @@ class Window:
             if event.char == '\r':
                 self.terminal.insert(END,">>> ")
             if event.char == '\x03':
-                self.terminal.delete("2.3",END)
+                self.terminal.delete("2.4",END)
         elif event.widget == self.text:
             # handle text event
             if self.net_hand.is_connected:
