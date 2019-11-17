@@ -45,7 +45,7 @@ class MyTestCase(unittest.TestCase):
         # test a single character change
         old_text: str = "this is a tes"
         new_text: str = "this is a test"
-        packet: DataPacketDocumentEdit = DataPacketDocumentEdit.generate_first_change_packet(old_text, new_text)
+        packet: DataPacketDocumentEdit = DataPacketDocumentEdit.generate_first_change_packet(old_text, new_text, 'test_doc')
         assert packet.check_hash(old_text)
         assert packet.action == Action.ADD
         assert packet.position == 13
@@ -57,14 +57,14 @@ class MyTestCase(unittest.TestCase):
 
         # test JSON loading and unloading
         packet_json = packet.get_json()
-        packet_json_loaded = DataPacketDocumentEdit()
+        packet_json_loaded = DataPacketDocumentEdit('test_doc')
         packet_json_loaded.parse_json(packet_json)
         assert packet.__eq__(packet_json_loaded)
 
         # test a multiple character change
         old_text: str = "this is a"
         new_text: str = "this is a test"
-        packets: list[DataPacketDocumentEdit] = DataPacketDocumentEdit.generate_packets_from_changes(old_text, new_text)
+        packets: list[DataPacketDocumentEdit] = DataPacketDocumentEdit.generate_packets_from_changes(old_text, new_text, 'test_doc')
         applied_text = DataPacketDocumentEdit.apply_multiple_packets(old_text, packets)
         assert applied_text == new_text
 
