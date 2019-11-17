@@ -24,4 +24,5 @@ class DataPacketSaveRequest(DataPacket):
         self.update_data_dict()
 
     def update_data_dict(self) -> None:
+        super().update_data_dict()
         self.data_dict.update({'document': self.document})
