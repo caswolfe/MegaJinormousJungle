@@ -3,11 +3,19 @@ import unittest
 
 class MyTestCase(unittest.TestCase):
 
-    # def test_NWK_8(self):
-    #     """
-    #     Tests connecting to a MQTT server using the NetworkHandler
-    #     """
-    #     assert 1 == 1
+    def test_NWK_8(self):
+        """
+        Tests connecting to a MQTT server using the NetworkHandler
+        """
+
+        from src.NetworkHandler import NetworkHandler
+
+        nh: NetworkHandler = NetworkHandler()
+        nh.establish_connection()
+        assert nh.is_connected
+
+        nh.close_connection()
+        assert not nh.is_connected
 
     # def test_NWK_9(self):
     #     """
@@ -15,21 +23,37 @@ class MyTestCase(unittest.TestCase):
     #     """
     #     assert 1 == 1
 
-    # def test_NWK_10(self):
-    #     """
-    #     Tests a DataPacket
-    #     """
-    #     assert 1 == 1
+    def test_NWK_10(self):
+        """
+        Tests a DataPacket
+        """
+
+        # imports
+        from src.DataPacket import DataPacket
+
+        packet: DataPacket = DataPacket()
+        assert packet.data_dict.keys().__contains__('packet-name')
+        assert packet.data_dict.keys().__contains__('mac-addr')
+        assert packet.data_dict.keys().__contains__('time-of-creation')
+        assert not packet.data_dict.keys().__contains__('time-of-send')
+
+        assert packet.data_dict.get('packet-name').__eq__('DataPacket')
+        assert packet.data_dict.get('mac-addr') is not None
+        assert packet.data_dict.get('time-of-creation') is not None
+
+        packet.set_time_of_send()
+        assert packet.data_dict.keys().__contains__('time-of-send')
+        assert packet.data_dict.get('time-of-send') is not None
 
     # def test_NWK_11(self):
     #     """
-    #     Tests a DataPacketCreateLobby
+    #     Tests a DataPacketRequestJoin
     #     """
     #     assert 1 == 1
 
     # def test_NWK_12(self):
     #     """
-    #     Tests a DataPacketJoinLobby
+    #     Tests a DataPacketRequestResponse
     #     """
     #     assert 1 == 1
 
