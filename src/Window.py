@@ -4,12 +4,14 @@ from tkinter import filedialog, messagebox
 import os
 
 try:
+    from src.CodeFrame import CodeFrame
     from src.DataPacketDocumentEdit import DataPacketDocumentEdit, Action
     from src.NetworkActionHandler import NetworkActionHandler
     from src.NetworkHandler import NetworkHandler
 except ImportError as ie:
     try:
-        # TODO: linux imports
+        # TODO: linux imports 
+        from CodeFrame import CodeFrame
         from DataPacketDocumentEdit import DataPacketDocumentEdit, Action
         from NetworkActionHandler import NetworkActionHandler
         from NetworkHandler import NetworkHandler
@@ -40,7 +42,7 @@ class Window:
     files = Frame(top_frame)
 
     # functional frames
-    text = Text(top_frame)
+    code = CodeFrame(top_frame)
     terminal = Text(bottom_frame)
     radio_frame = Scrollbar(files, orient="vertical")
 
@@ -59,7 +61,6 @@ class Window:
 
         self.create()
 
-    #TODO add line numbers to self.text
     def create(self) -> None:
         """
         Creates the window.
@@ -87,7 +88,7 @@ class Window:
         self.terminal.insert(1.0,"Console:\n>>> ")
 
         #  text default
-        self.old_text = self.text.get("1.0", END)
+        self.old_text = self.code.text.get("1.0", END)
 
         # visual effects
         self.files.config(width=100, bg='light grey')
@@ -97,7 +98,7 @@ class Window:
         self.top_frame.pack(side="top",fill='both', expand=True)
         self.bottom_frame.pack(side="bottom",fill='both', expand=True)        
         self.files.pack(side="left",fill='both', expand=True)
-        self.text.pack(side="right",fill='both', expand=True)
+        self.code.pack(side="right",fill='both', expand=True)
         self.terminal.pack(fill='both', expand=True)
 
     def show(self) -> None:
@@ -113,7 +114,7 @@ class Window:
         if location != "":
 
             #clear text and delete current radio buttons
-            self.text.delete("1.0", END)
+            self.code.text.delete("1.0", END)
             self.radio_frame.destroy()
             self.radio_frame = Scrollbar(self.files, orient="vertical")
             self.radio_frame.pack()
@@ -128,13 +129,13 @@ class Window:
     #TODO add functionality to clicking on folders (change current folder to that folder, have a back button to go to original folder)
     def open_item(self):
         if os.path.isfile(self.current_file_name.get()):
-            self.text.delete("1.0", END)
+            self.code.text.delete("1.0", END)
             file = open(self.current_file_name.get(), "r")
             self.current_file = file
             try:
-                self.text.insert(1.0, file.read())
+                self.code.text.insert(1.0, file.read())
             except:
-                self.text.insert(1.0,"Can not interperate this file")
+                self.code.text.insert(1.0,"Can not interperate this file")
             file.close()
         else:
             pass
@@ -142,7 +143,7 @@ class Window:
     def save_file(self) -> None:
         f = filedialog.asksaveasfilename(defaultextension=".py")
         to_save_file = open(f, 'w')
-        to_save_file.write(self.text.get("1.0", END))
+        to_save_file.write(self.code.text.get("1.0", END))
         to_save_file.close()
 
     def update_text(self, action: Action, position: int, character: str):
@@ -150,8 +151,8 @@ class Window:
         text_current = self.text.get("1.0", END)
         text_new = text_current[1:position+1] + character + text_current[position+1:]
         self.log.debug(f"current text:{repr(text_current)} \n updated text {repr(text_new)}")
-        self.text.delete("1.0", END)
-        self.text.insert("1.0", text_new)
+        self.code.text.delete("1.0", END)
+        self.code.text.insert("1.0", text_new)
         # n = 1
         # if action == Action.ADD:
         #     # TODO: fix#
@@ -166,8 +167,8 @@ class Window:
         #     pass
 
     def set_text(self, new_text: str):
-        self.text.delete("1.0", END)
-        self.text.insert("1.0", new_text)
+        self.code.text.delete("1.0", END)
+        self.code.text.insert("1.0", new_text)
 
     def handle_event(self, event):
         """
@@ -180,11 +181,10 @@ class Window:
                 self.terminal.insert(END,">>> ")
             if event.char == '\x03':
                 self.terminal.delete("2.4",END)
-        elif event.widget == self.text:
+        elif event.widget == self.code.text:
             # handle text event
             if self.net_hand.is_connected:
-                packet = DataPacketDocumentEdit(old_text=self.old_text, new_text=self.text.get("1.0", END))
+                packet = DataPacketDocumentEdit(old_text=self.old_text, new_text=self.code.text.get("1.0", END))
                 self.net_hand.send_packet(packet)
 
-            self.old_text = self.text.get("1.0", END)
-
+            self.old_text = self.code.text.get("1.0", END)
