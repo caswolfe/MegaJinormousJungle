@@ -140,12 +140,36 @@ class MyTestCase(unittest.TestCase):
         client.unsubscribe(TOPIC)
         client.disconnect()
 
-    # @staticmethod
-    # def test_NWK_4():
-    #     """
-    #     Tests publishing to a topic on a MQTT server with paho-mqtt
-    #     """
-    #     assert 1 == 1
+    @staticmethod
+    def test_NWK_4():
+        """
+        Tests publishing to a topic on a MQTT server with paho-mqtt
+        """
+        # imports
+        import paho.mqtt.client as mqtt
+        import time
+
+        client = mqtt.Client()
+        mqtt_helper = MQTTHelper(client)
+
+        # mqtt client setup
+        client.username_pw_set(USERNAME, PASSWORD)
+        client.connect(HOST, PORT)
+        client.subscribe(TOPIC, 0)
+        client.loop_start()
+
+        msg: str = "This is a test publish"
+        client.publish(TOPIC, msg)
+
+        time.sleep(1)
+
+        # TODO: add on_publish handler in MQTT_Helper and assert publish was successful
+        assert 1 == 1
+
+        # cleanup
+        client.loop_stop()
+        client.unsubscribe(TOPIC)
+        client.disconnect()
 
     # @staticmethod
     # def test_NWK_5():
