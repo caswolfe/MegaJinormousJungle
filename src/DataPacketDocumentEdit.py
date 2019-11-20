@@ -56,7 +56,7 @@ class DataPacketDocumentEdit(DataPacket):
 
         :return: True if the hash's match
         """
-        return self.get_text_hash(text) == self.old_text_hash
+        return self.get_text_hash(text) == self.data_dict.get('old_text_hash')
 
     @staticmethod
     def generate_first_change_packet(old_text: str, new_text: str, document: str):
@@ -127,7 +127,7 @@ class DataPacketDocumentEdit(DataPacket):
         :return: a new string with the new text
         """
         if packet.check_hash(text):
-            return text[:packet.position] + packet.character + text[packet.position:]
+            return text[:packet.data_dict.get('position')] + packet.data_dict.get('character') + text[packet.data_dict.get('position'):]
         else:
             raise Exception("Hash Mismatch")
 
@@ -163,6 +163,13 @@ class DataPacketDocumentEdit(DataPacket):
     def __str__(self) -> str:
         return '\'{}\' - {} - {} - \'{}\''.format(self.old_text_hash, self.action, self.position, self.character)
 
+
+    @staticmethod
+    def apply_packet_data_dict(packet_hash, packet_positon, packet_character, current_hash, text) -> str:
+        if packet_hash == current_hash:
+            return text[:packet_positon] + packet_character + text[packet_positon:]
+        else:
+            raise Exception("Hash Mismatch")
 
 class Action(Enum):
     """
