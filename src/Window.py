@@ -1,14 +1,19 @@
+import json
 import logging
+import uuid
 from tkinter import *
 from tkinter import filedialog, messagebox
 import os
+from threading import Thread
+from time import sleep
 
 
 from CodeFrame import CodeFrame
+from DataPacket import DataPacket
 from DataPacketDocumentEdit import DataPacketDocumentEdit, Action
-from NetworkActionHandler import NetworkActionHandler
 from NetworkHandler import NetworkHandler
 from PySyntaxHandler import Syntax
+from DataPacketCursorUpdate import DataPacketCursorUpdate
 
 class Window:
     """
@@ -46,11 +51,13 @@ class Window:
 
     def __init__(self):
 
-        self.net_hand = NetworkHandler()
-        self.nah = NetworkActionHandler(self)
-        self.net_hand.add_network_action_handler(self.nah)
+        self.net_hand = NetworkHandler(self.parse_message)
+        self.cursor_thread_run = True
+        self.cursor_thread = Thread(target=self.track_cursor)
 
         self.log = logging.getLogger('jumpy')
+
+        self.mac = hex(uuid.getnode())
 
         self.create()
 
@@ -101,13 +108,15 @@ class Window:
         """
         self.root.mainloop()
 
-    #TODO for folders with alot of files add a scrollbar, when file is changed clear terminal and change terminal directory (change ">>>" to "[directory path]>")
+    # TODO for folders with alot of files add a scrollbar, when file is changed clear terminal and change terminal directory (change ">>>" to "[directory path]>")
     def open_folder(self):
         location = filedialog.askdirectory()
 
         if location != "":
             self.current_directory = location
             #clear text and delete current radio buttons
+
+            # clear text and delete current radio buttons
             self.code.text.delete("1.0", END)
             self.radio_frame.destroy()
             self.radio_frame = Scrollbar(self.files, orient="vertical")
@@ -121,7 +130,11 @@ class Window:
                     Radiobutton(self.radio_frame, text = item, variable=self.current_file_name, command=self.open_item, value=item_path, indicator=0).pack(fill = 'x', ipady = 0)
             self.reset_terminal()
 
-    #TODO add functionality to clicking on folders (change current folder to that folder, have a back button to go to original folder)
+            # starts cursor tracking thread
+            # TODO: uncomment
+            # self.cursor_thread.start()
+
+    # TODO add functionality to clicking on folders (change current folder to that folder, have a back button to go to original folder)
     def open_item(self):
         if os.path.isfile(self.current_file_name.get()):
             self.code.text.delete("1.0", END)
@@ -130,6 +143,7 @@ class Window:
             try:
                 self.code.text.insert(1.0, file.read())
                 self.syntax_highlighting()
+                self.old_text = self.code.text.get("1.0", END)
             except:
                 self.code.text.insert(1.0,"Can not interperate this file")
             file.close()
@@ -207,7 +221,16 @@ class Window:
         elif event.widget == self.code.text:
             # handle text event
             if self.net_hand.is_connected:
-                packet = DataPacketDocumentEdit(old_text=self.old_text, new_text=self.code.text.get("1.0", END))
+                # packet = DataPacketDocumentEdit(old_text=self.old_text, new_text=self.code.text.get("1.0", END))
+                filename = "None"
+                try:
+                    filename = self.current_file_name.get().rsplit('/', 1)[1]
+                except IndexError:
+                    pass
+                # packets: list[DataPacketDocumentEdit] = DataPacketDocumentEdit.generate_packets_from_changes(self.old_text, self.code.text.get("1.0", END), filename)
+                packet = DataPacketDocumentEdit.generate_first_change_packet(self.old_text, self.code.text.get("1.0", END), filename)
+                # for packet in packets:
+                #     self.net_hand.send_packet(packet)
                 self.net_hand.send_packet(packet)
 
             self.old_text = self.code.text.get("1.0", END)
@@ -254,6 +277,33 @@ class Window:
             self.terminal.insert(END,self.current_directory + ">")
         else:
             self.terminal.insert(END,">>>")
+    def parse_message(self, packet_str: DataPacket):
+        data_dict = json.loads(packet_str)
+        packet_name = data_dict.get('packet-name')
+        print(packet_name)
+        print(data_dict)
+        if data_dict.get('mac-addr') == self.mac:
+            self.log.debug('received packet from self, ignoring...')
+        else:
+            if packet_name == 'DataPacket':
+                self.log.debug('Received a DataPacket')
+            elif packet_name == 'DataPacketDocumentEdit':
+                self.log.debug('Received a DataPacketDocumentEdit')
+                self.log.debug(data_dict)
+                text = self.code.text.get("1.0", END)
+                text_hash = DataPacketDocumentEdit.get_text_hash(text)
+                if text_hash == data_dict.get('old_text_hash'):
+                    self.log.debug("YEET")
+                    self.log.debug("Old Text: \'{}\"".format(text))
+                    self.code.text.delete("1.0", END)
+                    self.code.text.insert("1.0", DataPacketDocumentEdit.apply_packet_data_dict(data_dict.get('old_text_hash'), data_dict.get('action'), data_dict.get('position'), data_dict.get('character'), text_hash, text))
+                    self.code.text.delete('end-1c', 'end')
+                    self.log.debug("New Text: \'{}\"".format(self.code.text.get("1.0", END)))
+                else:
+                    self.log.error("FUCK")
+            else:
+                self.log.warning('Unknown packet type: \'{}\''.format(packet_name))
+                return False
 
     def get_words(self):
         """
@@ -265,4 +315,18 @@ class Window:
         """
         words = self.code.text.get("1.0", END).split(" ")
         return words
-        
+
+    def track_cursor(self):
+        while self.cursor_thread_run:
+            position = self.code.text.index(INSERT)
+            try:
+                file = self.current_file_name.get().rsplit('/', 1)[1]
+                dpcu = DataPacketCursorUpdate()
+                dpcu.define_manually(file, position)
+                print(position, file)
+                self.net_hand.send_packet(dpcu)
+            except Exception:
+                print('No file open')
+            # send position of cursor to others
+            sleep(1)
+

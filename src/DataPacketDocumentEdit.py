@@ -56,7 +56,7 @@ class DataPacketDocumentEdit(DataPacket):
 
         :return: True if the hash's match
         """
-        return self.get_text_hash(text) == self.old_text_hash
+        return self.get_text_hash(text) == self.data_dict.get('old_text_hash')
 
     @staticmethod
     def generate_first_change_packet(old_text: str, new_text: str, document: str):
@@ -127,7 +127,12 @@ class DataPacketDocumentEdit(DataPacket):
         :return: a new string with the new text
         """
         if packet.check_hash(text):
-            return text[:packet.position] + packet.character + text[packet.position:]
+            if packet.data_dict.get('Action') == 1:
+                return text[:packet.data_dict.get('position')] + packet.data_dict.get('character') + text[packet.data_dict.get('position'):]
+            elif packet.data_dict.get('Action') == 2:
+                return text[:packet.data_dict.get('position')] + text[packet.data_dict.get('position')+1:]
+            else:
+                exit(-69)
         else:
             raise Exception("Hash Mismatch")
 
@@ -163,6 +168,24 @@ class DataPacketDocumentEdit(DataPacket):
     def __str__(self) -> str:
         return '\'{}\' - {} - {} - \'{}\''.format(self.old_text_hash, self.action, self.position, self.character)
 
+
+    @staticmethod
+    def apply_packet_data_dict(packet_hash, packet_action, packet_positon, packet_character, current_hash, text) -> str:
+        if packet_hash == current_hash:
+            # if packet.data_dict.get('Action') == 1:
+            #     return text[:packet.data_dict.get('position')] + packet.data_dict.get('character') + text[packet.data_dict.get('position'):]
+            # elif packet.data_dict.get('Action') == 2:
+            #     return text[:packet.data_dict.get('position')] + text[packet.data_dict.get('position')+1:]
+            # else:
+            #     exit(-69)
+            if packet_action == 1:
+                return text[:packet_positon] + packet_character + text[packet_positon:]
+            elif packet_action == 2:
+                return text[:packet_positon] + text[packet_positon+1:]
+            else:
+                exit(-69)
+        else:
+            raise Exception("Hash Mismatch")
 
 class Action(Enum):
     """
