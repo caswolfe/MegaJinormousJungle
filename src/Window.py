@@ -137,6 +137,7 @@ class Window:
         """
         self.autosave_thread.start() #TODO: fix for better placing
         self.root.mainloop()
+        self.cursor_thread.start()
 
     # TODO for folders with alot of files add a scrollbar, when file is changed clear terminal and change terminal directory (change ">>>" to "[directory path]>")
     def open_folder(self):
@@ -162,7 +163,7 @@ class Window:
 
             # starts cursor tracking thread
             # TODO: uncomment
-            # self.cursor_thread.start()
+            
 
     # TODO add functionality to clicking on folders (change current folder to that folder, have a back button to go to original folder)
     def open_item(self):
@@ -366,14 +367,17 @@ class Window:
         return words
 
     def track_cursor(self):
+        cursor_1 = self.code.text.tag_config("c1", background='red')
+        cursor_2 = self.code.text.tag_config("c2", background='blue')
         while self.cursor_thread_run:
             position = self.code.text.index(INSERT)
             try:
                 file = self.current_file_name.get().rsplit('/', 1)[1]
                 dpcu = DataPacketCursorUpdate()
                 dpcu.define_manually(file, position)
-                print(position, file)
-                self.net_hand.send_packet(dpcu)
+                #print(position, file)
+                self.log.debug(f"position {position}")
+                #self.net_hand.send_packet(dpcu)
             except Exception:
                 print('No file open')
             # send position of cursor to others
