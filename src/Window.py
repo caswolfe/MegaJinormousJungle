@@ -43,6 +43,8 @@ class Window:
     radio_frame = Scrollbar(files, orient="vertical")
 
     # other variables
+    current_directory = None
+    current_terminal = ""
     current_file_name = StringVar()
     current_file = None
     old_text = ""
@@ -95,7 +97,8 @@ class Window:
         self.root.config(menu=self.menu_bar)
 
         # terminal default
-        self.terminal.insert(1.0,"Console:\n>>> ")
+        self.terminal.insert("1.0","Console:\n>>>")
+        self.current_terminal = "Console:\n>>>"
 
         #  text default
         self.old_text = self.code.text.get("1.0", END)
@@ -105,9 +108,10 @@ class Window:
         self.terminal.config(height= 10, borderwidth=5)
 
         # visual packs
+        self.root.geometry("900x600")
         self.top_frame.pack(side="top",fill='both', expand=True)
         self.bottom_frame.pack(side="bottom",fill='both', expand=True)        
-        self.files.pack(side="left",fill='both', expand=True)
+        self.files.pack(side="left",fill='both')
         self.code.pack(side="right",fill='both', expand=True)
         self.terminal.pack(fill='both', expand=True)
 
@@ -122,6 +126,8 @@ class Window:
         location = filedialog.askdirectory()
 
         if location != "":
+            self.current_directory = location
+            #clear text and delete current radio buttons
 
             # clear text and delete current radio buttons
             self.code.text.delete("1.0", END)
@@ -135,6 +141,7 @@ class Window:
                 # condition so that folders that start with "." are not displayed
                 if os.path.isfile(item_path) or not item.startswith("."):
                     Radiobutton(self.radio_frame, text = item, variable=self.current_file_name, command=self.open_item, value=item_path, indicator=0).pack(fill = 'x', ipady = 0)
+            self.reset_terminal()
 
             # starts cursor tracking thread
             # TODO: uncomment
@@ -213,11 +220,17 @@ class Window:
         # self.old_text = self.code.text.get("1.0", END)
         if event.widget == self.terminal:
             # handle terminal event
-            #TODO pipe command to terminal, prevent editing previous lines
+            #TODO pipe command to terminal, prevent deleting or moving to previous lines 
             if event.char == '\r':
-                self.terminal.insert(END,">>> ")
+                if self.current_directory:
+                    self.terminal.insert(END,self.current_directory + ">")
+                else:
+                    self.terminal.insert(END,">>>")
             if event.char == '\x03':
-                self.terminal.delete("2.4",END)
+                self.reset_terminal()
+            if event.char == '\x08':
+                #THIS IS WHERE I NEED TO DO SOMETHING ABOUT PREVENTING MOVING TO PREVIOUS LINES
+                pass
         elif event.widget == self.code.text:
             # handle text event
             if self.net_hand.is_connected:
@@ -270,6 +283,13 @@ class Window:
                     self.code.text.tag_add(color, idx, lastidx)
                     idx = lastidx
 
+    def reset_terminal(self):
+        self.terminal.delete("2.0",END)
+        self.terminal.insert(END,"\n")
+        if self.current_directory:
+            self.terminal.insert(END,self.current_directory + ">")
+        else:
+            self.terminal.insert(END,">>>")
     def parse_message(self, packet_str: DataPacket):
         data_dict = json.loads(packet_str)
         packet_name = data_dict.get('packet-name')
