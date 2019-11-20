@@ -430,6 +430,7 @@ class Window:
                     print('No file open')
                 p.define_manually(file, self.code.text.get("1.0", END))
                 self.net_hand.send_packet(p)
-                self.save_file()
+                # TODO: implement
+                # self.save_file()
             else:
                 pass
