@@ -272,8 +272,8 @@ class Window:
                     idx = lastidx
 
     def reset_terminal(self):
-        self.terminal.delete("1.0",END)
-        self.terminal.insert("1.0","Console: \n")
+        self.terminal.delete("2.0",END)
+        self.terminal.insert(END,"\n")
         if self.current_directory:
             self.terminal.insert(END,self.current_directory + ">")
         else:
