@@ -126,7 +126,7 @@ class MyTestCase(unittest.TestCase):
         assert packet.data_dict.get('time-of-send') is not None
     
         net_hand.send_packet(packet)
-        time.sleep(3)
+        time.sleep(1)
         net_hand.close_connection()
         assert helper.packet_received_data_dict is not None
         pass
