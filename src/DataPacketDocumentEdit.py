@@ -89,70 +89,53 @@ class DataPacketDocumentEdit(DataPacket):
                 return to_ret_packet
         return None
 
-    @staticmethod
-    def generate_packets_from_changes(old_text: str, new_text: str, document: str):
-        """
-        generates a list of DataPacketDocumentEdit's which will allow one to alter the old_text into the new_text
+    # @staticmethod
+    # def generate_packets_from_changes(old_text: str, new_text: str, document: str):
+    #     """
+    #     generates a list of DataPacketDocumentEdit's which will allow one to alter the old_text into the new_text
+    #
+    #     :param old_text: the old text
+    #     :param new_text: the new text (with changes)
+    #     :param document: the document which these packets will apply to
+    #
+    #     :return: a list of DataPacketDocumentEdit's which can be applied to the old_text (sequentially) to bring it up to new_text
+    #     """
+    #
+    #     generated_packets = list()
+    #     current_text: str = old_text
+    #     change = DataPacketDocumentEdit.generate_first_change_packet(current_text, new_text, document)
+    #     while change is not None:
+    #
+    #         generated_packets.append(change)
+    #         if change.check_hash(current_text):
+    #             current_text = DataPacketDocumentEdit.apply_packet(current_text, change)
+    #         else:
+    #             raise Exception("Hash Mismatch")
+    #
+    #         change = DataPacketDocumentEdit.generate_first_change_packet(current_text, new_text, document)
+    #
+    #     return generated_packets
 
-        :param old_text: the old text
-        :param new_text: the new text (with changes)
-        :param document: the document which these packets will apply to
+    # @staticmethod
+    # def apply_packet(text: str, packet):
+    #     """
+    #     Applies the provided packet to the provided string, raises an exception if text hash's mismatch
+    #
+    #     :param text: text to apply the packet to
+    #     :param packet: the packet to apply to the text
+    #
+    #     :return: a new string with the new text
+    #     """
+    #     if packet.check_hash(text):
+    #         if packet.data_dict.get('Action') == 1:
+    #             return text[:packet.data_dict.get('position')] + packet.data_dict.get('character') + text[packet.data_dict.get('position'):]
+    #         elif packet.data_dict.get('Action') == 2:
+    #             return text[:packet.data_dict.get('position')] + text[packet.data_dict.get('position')+1:]
+    #         else:
+    #             exit(-69)
+    #     else:
+    #         raise Exception("Hash Mismatch")
 
-        :return: a list of DataPacketDocumentEdit's which can be applied to the old_text (sequentially) to bring it up to new_text
-        """
-
-        generated_packets = list()
-        current_text: str = old_text
-        change = DataPacketDocumentEdit.generate_first_change_packet(current_text, new_text, document)
-        while change is not None:
-
-            generated_packets.append(change)
-            if change.check_hash(current_text):
-                current_text = DataPacketDocumentEdit.apply_packet(current_text, change)
-            else:
-                raise Exception("Hash Mismatch")
-
-            change = DataPacketDocumentEdit.generate_first_change_packet(current_text, new_text, document)
-
-        return generated_packets
-
-    @staticmethod
-    def apply_packet(text: str, packet):
-        """
-        Applies the provided packet to the provided string, raises an exception if text hash's mismatch
-
-        :param text: text to apply the packet to
-        :param packet: the packet to apply to the text
-
-        :return: a new string with the new text
-        """
-        if packet.check_hash(text):
-            if packet.data_dict.get('Action') == 1:
-                return text[:packet.data_dict.get('position')] + packet.data_dict.get('character') + text[packet.data_dict.get('position'):]
-            elif packet.data_dict.get('Action') == 2:
-                return text[:packet.data_dict.get('position')] + text[packet.data_dict.get('position')+1:]
-            else:
-                exit(-69)
-        else:
-            raise Exception("Hash Mismatch")
-
-    @staticmethod
-    def apply_multiple_packets(text: str, packets) -> str:
-        """
-        Applies multiple packets to the text
-
-        :param text: text to apply the packets to
-        :param packets: a list of packet to apply to the text sequentially
-
-        :return: a new string with the new text
-        """
-        current_text = text
-        for packet in packets:
-            if packet.check_hash(current_text):
-                current_text = DataPacketDocumentEdit.apply_packet(current_text, packet)
-            else:
-                raise Exception("Hash Mismatch")
-        return current_text
 
     @staticmethod
     def get_text_hash(text: str) -> str:
