@@ -329,9 +329,10 @@ class Window:
                     self.log.error("FUCK")
             elif packet_name == 'DataPacketRequestJoin':
                 if self.is_host:
-                    result = messagebox.askyesno("jumpy request", "Allow \'{}\' to join the lobby?".format(data_dict.get('mac_addr')))
+                    result = messagebox.askyesno("jumpy request", "Allow \'{}\' to join the lobby?".format(data_dict.get('mac-addr')))
                     dprr = DataPacketRequestResponse()
                     dprr.define_manually(data_dict.get('mac_addr'), result)
+                    self.net_hand.send_packet(dprr)
             else:
                 self.log.warning('Unknown packet type: \'{}\''.format(packet_name))
                 return False
