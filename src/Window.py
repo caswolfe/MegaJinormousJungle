@@ -57,6 +57,8 @@ class Window:
         self.net_hand = NetworkHandler(self.parse_message)
         self.cursor_thread_run = True
         self.cursor_thread = Thread(target=self.track_cursor)
+        self.cursor_thread.setDaemon(True)
+        self.u2_pos = None
 
         self.autosave_thread = Thread(target=self.autosave)
         self.autosave_thread.setDaemon(True)
@@ -352,6 +354,8 @@ class Window:
                     self.have_perms = False
                     messagebox.showerror("jumpy", "You have NOT been accepted into the lobby...")
                     self.net_hand.close_connection()
+            elif packet_name == 'DataPacketCursorUpdate':
+                self.u2_pos = data_dict.get('position')
             else:
                 self.log.warning('Unknown packet type: \'{}\''.format(packet_name))
                 return False
@@ -375,6 +379,11 @@ class Window:
             pos_int = [int(x) for x in position.split(".")]
             end_pos = f'{pos_int[0]}.{pos_int[1]+1}'
             self.code.text.tag_add("c1", position, end_pos)
+            if self.u2_pos is not None:
+                pos2 = self.u2_pos
+                pos_int2 = [int(x) for x in pos2.split(".")]
+                end_pos2 = f'{pos_int2[0]}.{pos_int2[1]+1}'
+                self.code.text.tag_add("c2", pos2, end_pos2)
            # try:
               #  file = self.current_file_name.get().rsplit('/', 1)[1]
             dpcu = DataPacketCursorUpdate()
@@ -389,6 +398,8 @@ class Window:
             while not self.handle_event:
                 sleep(1)
             self.code.text.tag_remove("c1",position, end_pos)
+            if self.u2_pos is not None:
+                self.code.text.tag_remove("c1",pos2, end_pos2)
 
 
 
