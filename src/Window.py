@@ -16,6 +16,7 @@ from DataPacketRequestResponse import DataPacketRequestResponse
 from NetworkHandler import NetworkHandler
 from PySyntaxHandler import Syntax
 from DataPacketCursorUpdate import DataPacketCursorUpdate
+from DataPacketSaveDump import DataPacketSaveDump
 
 class Window:
     """
@@ -57,6 +58,12 @@ class Window:
         self.net_hand = NetworkHandler(self.parse_message)
         self.cursor_thread_run = True
         self.cursor_thread = Thread(target=self.track_cursor)
+        self.cursor_thread.setDaemon(True)
+        self.u2_pos = None
+
+        self.autosave_thread = Thread(target=self.autosave)
+        self.autosave_thread.setDaemon(True)
+
 
         self.log = logging.getLogger('jumpy')
 
@@ -132,7 +139,10 @@ class Window:
         """
         Shows the window.
         """
+        self.autosave_thread.start() #TODO: fix for better placing
+        self.cursor_thread.start()
         self.root.mainloop()
+        
 
     # TODO for folders with alot of files add a scrollbar
     def open_folder(self):
@@ -158,7 +168,7 @@ class Window:
 
             # starts cursor tracking thread
             # TODO: uncomment
-            # self.cursor_thread.start()
+            
 
     # TODO add functionality to clicking on folders (change current folder to that folder, have a back button to go to original folder)
     def open_item(self):
@@ -315,8 +325,6 @@ class Window:
         self.current_terminal_buffer_line = 2
 
     def parse_message(self, packet_str: DataPacket):
-        if not self.have_perms:
-            return
         data_dict = json.loads(packet_str)
         packet_name = data_dict.get('packet-name')
         print(packet_name)
@@ -346,6 +354,20 @@ class Window:
                     dprr = DataPacketRequestResponse()
                     dprr.define_manually(data_dict.get('mac_addr'), result)
                     self.net_hand.send_packet(dprr)
+            elif packet_name == 'DataPacketRequestResponse':
+                self.log.debug('Received a DataPacketRequestResponse')
+                can_join = data_dict.get('can_join')
+                if can_join:
+                    self.log.debug('allowed into the lobby')
+                    self.have_perms = True
+                    messagebox.showinfo("jumpy", "You have been accepted into the lobby!")
+                else:
+                    self.log.debug('rejected from the lobby')
+                    self.have_perms = False
+                    messagebox.showerror("jumpy", "You have NOT been accepted into the lobby...")
+                    self.net_hand.close_connection()
+            elif packet_name == 'DataPacketCursorUpdate':
+                self.u2_pos = data_dict.get('position')
             else:
                 self.log.warning('Unknown packet type: \'{}\''.format(packet_name))
                 return False
@@ -362,16 +384,52 @@ class Window:
         return words
 
     def track_cursor(self):
+        cursor_1 = self.code.text.tag_config("c1", background='red')
+        cursor_2 = self.code.text.tag_config("c2", background='blue')
         while self.cursor_thread_run:
             position = self.code.text.index(INSERT)
-            try:
-                file = self.current_file_name.get().rsplit('/', 1)[1]
-                dpcu = DataPacketCursorUpdate()
-                dpcu.define_manually(file, position)
-                print(position, file)
-                self.net_hand.send_packet(dpcu)
-            except Exception:
-                print('No file open')
+            pos_int = [int(x) for x in position.split(".")]
+            end_pos = f'{pos_int[0]}.{pos_int[1]+1}'
+            self.code.text.tag_add("c1", position, end_pos)
+            # if self.u2_pos is not None:
+            #     pos2 = self.u2_pos
+            #     pos_int2 = [int(x) for x in pos2.split(".")]
+            #     end_pos2 = f'{pos_int2[0]}.{pos_int2[1]+1}'
+            #     self.code.text.tag_add("c2", pos2, end_pos2)
+           # try:
+              #  file = self.current_file_name.get().rsplit('/', 1)[1]
+            dpcu = DataPacketCursorUpdate()
+            dpcu.define_manually("None", position)
+            #print(position, file)
+            #self.log.debug(f"position {position} end pos {end_pos}")
+            #sleep(1)
+            #self.net_hand.send_packet(dpcu)
+            #except Exception:
+            #    print('No file open')
             # send position of cursor to others
-            sleep(1)
+            while not self.handle_event:
+                sleep(1)
+            self.code.text.tag_remove("c1",position, end_pos)
+            #if self.u2_pos is not None:
+            #    self.code.text.tag_remove("c1",pos2, end_pos2)
 
+
+
+
+    def autosave(self):
+        while True:
+            sleep(30)
+            if self.is_host:
+                self.log.debug("autosaving...")
+                p = DataPacketSaveDump()
+                file = None
+                try:
+                    file = self.current_file_name.get().rsplit('/', 1)[1]
+                    
+                except Exception:
+                    print('No file open')
+                p.define_manually(file, self.code.text.get("1.0", END))
+                self.net_hand.send_packet(p)
+                self.save_file()
+            else:
+                pass
