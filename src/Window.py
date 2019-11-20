@@ -264,16 +264,16 @@ class Window:
             elif packet_name == 'DataPacketDocumentEdit':
                 self.log.debug('Received a DataPacketDocumentEdit')
                 self.log.debug(data_dict)
-                #action = Action(int(data_dict.get('action')))
-                #time = data_dict.get('time-of-send')
-                #self.log.debug(time)
+                # action = Action(int(data_dict.get('action')))
+                # time = data_dict.get('time-of-send')
+                # self.log.debug(time)
                 # action_str = data_dict.get('action')
                 # position_str = data_dict.get('position')
                 # character_str = data_dict.get('character')
                 # action = Action(int(action_str))
                 # position = int(position_str)
                 # self.window.update_text(action, position, character_str)
-                self.window.set_text(data_dict.get('new_text'))
+                # self.window.set_text(data_dict.get('new_text'))
             else:
                 self.log.warning('Unknown packet type: \'{}\''.format(packet_name))
                 return False
