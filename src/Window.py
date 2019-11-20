@@ -199,6 +199,7 @@ class Window:
         self.log.debug(f"current text:{repr(text_current)} \n updated text {repr(text_new)}")
         self.code.text.delete("1.0", END)
         self.code.text.insert("1.0", text_new)
+        
         # n = 1
         # if action == Action.ADD:
         #     # TODO: fix#
@@ -277,6 +278,7 @@ class Window:
                 self.net_hand.send_packet(packet)
 
             self.old_text = self.code.text.get("1.0", END)
+            self.syntax_highlighting()
 
     def syntax_highlighting(self, lang = 'python'):
         """
