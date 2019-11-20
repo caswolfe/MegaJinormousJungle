@@ -379,27 +379,27 @@ class Window:
             pos_int = [int(x) for x in position.split(".")]
             end_pos = f'{pos_int[0]}.{pos_int[1]+1}'
             self.code.text.tag_add("c1", position, end_pos)
-            if self.u2_pos is not None:
-                pos2 = self.u2_pos
-                pos_int2 = [int(x) for x in pos2.split(".")]
-                end_pos2 = f'{pos_int2[0]}.{pos_int2[1]+1}'
-                self.code.text.tag_add("c2", pos2, end_pos2)
+            # if self.u2_pos is not None:
+            #     pos2 = self.u2_pos
+            #     pos_int2 = [int(x) for x in pos2.split(".")]
+            #     end_pos2 = f'{pos_int2[0]}.{pos_int2[1]+1}'
+            #     self.code.text.tag_add("c2", pos2, end_pos2)
            # try:
               #  file = self.current_file_name.get().rsplit('/', 1)[1]
             dpcu = DataPacketCursorUpdate()
             dpcu.define_manually("None", position)
             #print(position, file)
             #self.log.debug(f"position {position} end pos {end_pos}")
-            sleep(5)
-            self.net_hand.send_packet(dpcu)
+            #sleep(1)
+            #self.net_hand.send_packet(dpcu)
             #except Exception:
             #    print('No file open')
             # send position of cursor to others
             while not self.handle_event:
                 sleep(1)
             self.code.text.tag_remove("c1",position, end_pos)
-            if self.u2_pos is not None:
-                self.code.text.tag_remove("c1",pos2, end_pos2)
+            #if self.u2_pos is not None:
+            #    self.code.text.tag_remove("c1",pos2, end_pos2)
 
 
 
