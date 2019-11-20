@@ -134,7 +134,7 @@ class Window:
         """
         self.root.mainloop()
 
-    # TODO for folders with alot of files add a scrollbar, when file is changed clear terminal and change terminal directory (change ">>>" to "[directory path]>")
+    # TODO for folders with alot of files add a scrollbar
     def open_folder(self):
         location = filedialog.askdirectory()
 
@@ -234,7 +234,7 @@ class Window:
         if event.widget == self.terminal:
             cursor_line, cursor_column = [int(x) for x in self.terminal.index(INSERT).split('.')]
             # handle terminal event
-            #TODO pipe command to terminal, prevent deleting or moving to previous lines 
+            #TODO pipe command to terminal, update buffer_column when pip output from terminal 
             if event.char == '\r':
                 if self.current_directory:
                     self.terminal.insert(END,self.current_directory + ">")
