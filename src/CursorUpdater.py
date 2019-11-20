@@ -1,18 +1,14 @@
 from tkinter import *
-from tkinter import filedialog, messagebox
 
 
 class CursorUpdater:
 
-    def __init__(self, window, position, name):
-        self.position = position
-        self.name = name
+    def __init__(self, window, position, file):
+        #self.position = position
+        #self.name = file
         self.text = window.text
         self.root = window.root
-
-    def update_cursor(self):
-        # get position from network
-        self.set_cursor(self.position, self.name)
+        self.set_cursor(position, "No name")
 
     def set_cursor(self, position, name):
         self.text.tag_config("cursor_tag", foreground="red")
