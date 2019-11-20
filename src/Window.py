@@ -125,6 +125,7 @@ class Window:
             self.current_file = file
             try:
                 self.code.text.insert(1.0, file.read())
+                self.syntax_highlighting()
             except:
                 self.code.text.insert(1.0,"Can not interperate this file")
             file.close()
@@ -200,7 +201,6 @@ class Window:
                 self.net_hand.send_packet(packet)
 
             self.old_text = self.code.text.get("1.0", END)
-        self.syntax_highlighting()
 
     def syntax_highlighting(self, lang = 'python'):
         """
