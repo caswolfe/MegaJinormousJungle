@@ -11,6 +11,7 @@ from DataPacketDocumentEdit import DataPacketDocumentEdit, Action
 from NetworkActionHandler import NetworkActionHandler
 from NetworkHandler import NetworkHandler
 from PySyntaxHandler import Syntax
+from DataPacketCursorUpdate import DataPacketCursorUpdate
 
 class Window:
     """
@@ -260,7 +261,10 @@ class Window:
             position = self.code.text.index(INSERT)
             try:
                 file = self.current_file_name.get().rsplit('/', 1)[1]
+                dpcu = DataPacketCursorUpdate()
+                dpcu.define_manually(file, position)
                 print(position, file)
+                self.net_hand.send_packet(dpcu)
             except Exception:
                 print('No file open')
             # send position of cursor to others

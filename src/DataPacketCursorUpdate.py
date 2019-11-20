@@ -1,8 +1,6 @@
 import logging
 
-
-from DataPacket import DataPacket, DataPacketDocumentEdit
-
+from DataPacket import DataPacket
 
 
 class DataPacketCursorUpdate(DataPacket):
@@ -12,9 +10,9 @@ class DataPacketCursorUpdate(DataPacket):
         self.log = logging.getLogger('jumpy')
 
         self.document: str = None
-        self.position: int = None
+        self.position: str = None
 
-    def define_manually(self, document: str, positon: int):
+    def define_manually(self, document: str, positon: str):
         self.document = document
         self.position = positon
         self.update_data_dict()
