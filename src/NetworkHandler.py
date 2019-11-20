@@ -69,7 +69,7 @@ class NetworkHandler:
     def join_lobby(self, lobby_name: str):
         self.lobby = lobby_name
 
-    def close_lobby(self, lobby_name: str):
+    def close_lobby(self):
         self.lobby = None
         self.close_connection()
 
