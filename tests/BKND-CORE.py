@@ -18,6 +18,11 @@ class MyTestCase(unittest.TestCase):
         assert len(syn.get_keywords()) > 0
         assert len(syn.get_color_dict()) > 0
 
+    @staticmethod
+    def test_cursor_update():
+        from CursorUpdater import CursorUpdater
+    
+
 
 
 if __name__ == '__main__':
