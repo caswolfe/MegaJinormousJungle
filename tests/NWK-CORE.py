@@ -145,51 +145,52 @@ class MyTestCase(unittest.TestCase):
     #     """
     #     assert 1 == 1
 
-    # @staticmethod
-    # def test_NWK_13():
-    #     """
-    #     Tests a DataPacketDocumentEdit
-    #     """
-    #
-    #     # basic logging init
-    #     log = logging.getLogger('jumpy')
-    #     log_format = logging.Formatter('%(filename)s - %(lineno)d - %(levelname)s - %(message)s')
-    #     log.setLevel(logging.DEBUG)
-    #
-    #     # logging console init
-    #     log_handler_console = logging.StreamHandler()
-    #     log_handler_console.setLevel(logging.DEBUG)
-    #     log_handler_console.setFormatter(log_format)
-    #     log.addHandler(log_handler_console)
-    #
-    #     # imports needed for this test
-    #     from DataPacketDocumentEdit import DataPacketDocumentEdit, Action
-    #
-    #     # test a single character change
-    #     old_text: str = "this is a tes"
-    #     new_text: str = "this is a test"
-    #     packet: DataPacketDocumentEdit = DataPacketDocumentEdit.generate_first_change_packet(old_text, new_text, 'test_doc')
-    #     assert packet.check_hash(old_text)
-    #     assert packet.action == Action.ADD
-    #     assert packet.position == 13
-    #     assert packet.character == 't'
-    #
-    #     # test the application of a packet to a string
-    #     applied_text: str = DataPacketDocumentEdit.apply_packet(old_text, packet)
-    #     assert applied_text == new_text
-    #
-    #     # test JSON loading and unloading
-    #     packet_json = packet.get_json()
-    #     packet_json_loaded = DataPacketDocumentEdit('test_doc')
-    #     packet_json_loaded.parse_json(packet_json)
-    #     assert packet.__eq__(packet_json_loaded)
-    #
-    #     # test a multiple character change
-    #     old_text: str = "this is a"
-    #     new_text: str = "this is a test"
-    #     packets: list[DataPacketDocumentEdit] = DataPacketDocumentEdit.generate_packets_from_changes(old_text, new_text, 'test_doc')
-    #     applied_text = DataPacketDocumentEdit.apply_multiple_packets(old_text, packets)
-    #     assert applied_text == new_text
+    @staticmethod
+    def test_NWK_13():
+        """
+        Tests a DataPacketDocumentEdit
+        """
+
+        # basic logging init
+        log = logging.getLogger('jumpy')
+        log_format = logging.Formatter('%(filename)s - %(lineno)d - %(levelname)s - %(message)s')
+        log.setLevel(logging.DEBUG)
+
+        # logging console init
+        log_handler_console = logging.StreamHandler()
+        log_handler_console.setLevel(logging.DEBUG)
+        log_handler_console.setFormatter(log_format)
+        log.addHandler(log_handler_console)
+
+        # imports needed for this test
+        from DataPacketDocumentEdit import DataPacketDocumentEdit, Action
+
+        # test a single character change
+        old_text: str = "this is a tes"
+        new_text: str = "this is a test"
+        packet: DataPacketDocumentEdit = DataPacketDocumentEdit.generate_first_change_packet(old_text, new_text, 'test_doc')
+        assert packet.check_hash(old_text)
+        assert packet.action == Action.ADD
+        assert packet.position == 13
+        assert packet.character == 't'
+
+        # test the application of a packet to a string
+        # applied_text: str = DataPacketDocumentEdit.apply_packet_data_dict(DataPacketDocumentEdit.get_text_hash(old_text), )
+        applied_text: str = DataPacketDocumentEdit.apply_packet_data_dict(packet.data_dict.get('old_text_hash'), packet.data_dict.get('action'), packet.data_dict.get('position'), packet.data_dict.get('character'), DataPacketDocumentEdit.get_text_hash(old_text), old_text)
+        assert applied_text == new_text
+
+        # test JSON loading and unloading
+        packet_json = packet.get_json()
+        packet_json_loaded = DataPacketDocumentEdit('test_doc')
+        packet_json_loaded.parse_json(packet_json)
+        assert packet.__eq__(packet_json_loaded)
+
+        # test a multiple character change
+        # old_text: str = "this is a"
+        # new_text: str = "this is a test"
+        # packets: list[DataPacketDocumentEdit] = DataPacketDocumentEdit.generate_packets_from_changes(old_text, new_text, 'test_doc')
+        # applied_text = DataPacketDocumentEdit.apply_multiple_packets(old_text, packets)
+        # assert applied_text == new_text
 
     # # @staticmethod
     # # def test_NWK_14():
