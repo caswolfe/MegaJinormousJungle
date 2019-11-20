@@ -301,9 +301,8 @@ class Window:
             self.terminal.insert(END,self.current_directory + ">")
         else:
             self.terminal.insert(END,">>>")
+
     def parse_message(self, packet_str: DataPacket):
-        if not self.have_perms:
-            return
         data_dict = json.loads(packet_str)
         packet_name = data_dict.get('packet-name')
         print(packet_name)
@@ -313,7 +312,7 @@ class Window:
         else:
             if packet_name == 'DataPacket':
                 self.log.debug('Received a DataPacket')
-            elif packet_name == 'DataPacketDocumentEdit':
+            elif packet_name == 'DataPacketDocumentEdit' and self.have_perms:
                 self.log.debug('Received a DataPacketDocumentEdit')
                 self.log.debug(data_dict)
                 text = self.code.text.get("1.0", END)
@@ -327,7 +326,7 @@ class Window:
                     self.log.debug("New Text: \'{}\"".format(self.code.text.get("1.0", END)))
                 else:
                     self.log.error("FUCK")
-            elif packet_name == 'DataPacketRequestJoin':
+            elif packet_name == 'DataPacketRequestJoin' and self.have_perms:
                 if self.is_host:
                     result = messagebox.askyesno("jumpy request", "Allow \'{}\' to join the lobby?".format(data_dict.get('mac-addr')))
                     dprr = DataPacketRequestResponse()
