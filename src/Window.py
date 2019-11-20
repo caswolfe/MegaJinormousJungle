@@ -215,9 +215,11 @@ class Window:
                     filename = self.current_file_name.get().rsplit('/', 1)[1]
                 except IndexError:
                     pass
-                packets: list[DataPacketDocumentEdit] = DataPacketDocumentEdit.generate_packets_from_changes(self.old_text, self.code.text.get("1.0", END), filename)
-                for packet in packets:
-                    self.net_hand.send_packet(packet)
+                # packets: list[DataPacketDocumentEdit] = DataPacketDocumentEdit.generate_packets_from_changes(self.old_text, self.code.text.get("1.0", END), filename)
+                packet = DataPacketDocumentEdit.generate_first_change_packet(self.old_text, self.code.text.get("1.0", END), filename)
+                # for packet in packets:
+                #     self.net_hand.send_packet(packet)
+                self.net_hand.send_packet(packet)
 
             self.old_text = self.code.text.get("1.0", END)
 
@@ -273,8 +275,6 @@ class Window:
                 text_hash = DataPacketDocumentEdit.get_text_hash(text)
                 if text_hash == data_dict.get('old_text_hash'):
                     self.log.debug("YEET")
-                    # packet = DataPacketDocumentEdit()
-                    # packet.parse_json(packet_str)
                     self.log.debug("Old Text: \'{}\"".format(text))
                     self.code.text.delete("1.0", END)
                     self.code.text.insert("1.0", DataPacketDocumentEdit.apply_packet_data_dict(data_dict.get('old_text_hash'), data_dict.get('position'), data_dict.get('character'), text_hash, text))
@@ -282,16 +282,6 @@ class Window:
                     self.log.debug("New Text: \'{}\"".format(self.code.text.get("1.0", END)))
                 else:
                     self.log.error("FUCK")
-                # action = Action(int(data_dict.get('action')))
-                # time = data_dict.get('time-of-send')
-                # self.log.debug(time)
-                # action_str = data_dict.get('action')
-                # position_str = data_dict.get('position')
-                # character_str = data_dict.get('character')
-                # action = Action(int(action_str))
-                # position = int(position_str)
-                # self.window.update_text(action, position, character_str)
-                # self.window.set_text(data_dict.get('new_text'))
             else:
                 self.log.warning('Unknown packet type: \'{}\''.format(packet_name))
                 return False
