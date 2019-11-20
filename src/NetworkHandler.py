@@ -4,9 +4,7 @@ import json
 import paho.mqtt.client as mqtt
 import logging
 
-
 import DataPacket
-from NetworkActionHandler import NetworkActionHandler
 
 
 class NetworkHandler:
@@ -18,7 +16,7 @@ class NetworkHandler:
 
     is_connected = False
 
-    def __init__(self):
+    def __init__(self, parse_message_function):
 
         # config setup
         self.config = configparser.ConfigParser()
@@ -36,7 +34,7 @@ class NetworkHandler:
         self.log = logging.getLogger('jumpy')
 
         # network action handler setup
-        self.nahs = list()
+        self.parse_message_function = parse_message_function
 
         # used for unit testing
         self.unit_testing = False
@@ -77,17 +75,17 @@ class NetworkHandler:
 
     # def close_as_host(self) -> None:\n    #     """\n    #     Closes all connections with this machine as host.\n    #     :return:\n    #     """\n    #     pass
 
-    def add_network_action_handler(self, nah: NetworkActionHandler) -> bool:
-        """
-        Adds a NetworkActionHandler to this SocketHandler.
-        """
-        self.nahs.append(nah)
-
-    def remove_network_action_handler(self, nah: NetworkActionHandler) -> bool:
-        """
-        Removes the specified NetworkActionHandler from this SocketHandler.
-        """
-        self.nahs.remove(nah)
+    # def add_network_action_handler(self, nah: NetworkActionHandler) -> bool:
+    #     """
+    #     Adds a NetworkActionHandler to this SocketHandler.
+    #     """
+    #     self.nahs.append(nah)
+    #
+    # def remove_network_action_handler(self, nah: NetworkActionHandler) -> bool:
+    #     """
+    #     Removes the specified NetworkActionHandler from this SocketHandler.
+    #     """
+    #     self.nahs.remove(nah)
 
     def send_packet(self, packet: DataPacket) -> bool:
         """

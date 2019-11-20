@@ -1,3 +1,4 @@
+import json
 import logging
 from tkinter import *
 from tkinter import filedialog, messagebox
@@ -5,8 +6,8 @@ import os
 
 
 from CodeFrame import CodeFrame
+from DataPacket import DataPacket
 from DataPacketDocumentEdit import DataPacketDocumentEdit, Action
-from NetworkActionHandler import NetworkActionHandler
 from NetworkHandler import NetworkHandler
 from PySyntaxHandler import Syntax
 
@@ -44,9 +45,7 @@ class Window:
 
     def __init__(self):
 
-        self.net_hand = NetworkHandler()
-        self.nah = NetworkActionHandler(self)
-        self.net_hand.add_network_action_handler(self.nah)
+        self.net_hand = NetworkHandler(self.parse_message)
 
         self.log = logging.getLogger('jumpy')
 
@@ -236,8 +235,31 @@ class Window:
                     lastidx = '%s+%dc' % (idx, len(kw))
                     self.code.text.tag_add(color, idx, lastidx)
                     idx = lastidx
-            
 
+    def parse_message(self, packet: DataPacket):
+        data_dict = json.loads(packet)
+        packet_name = data_dict.get('packet-name')
+        if data_dict.get('mac-addr') == self.mac and not self.window.net_hand.is_unit_testing:
+            self.log.debug('received packet from self, ignoring...')
+        else:
+            if packet_name == 'DataPacket':
+                self.log.debug('Received a DataPacket')
+            elif packet_name == 'DataPacketDocumentEdit':
+                self.log.debug('Received a DataPacketDocumentEdit')
+                self.log.debug(data_dict)
+                #action = Action(int(data_dict.get('action')))
+                #time = data_dict.get('time-of-send')
+                #self.log.debug(time)
+                # action_str = data_dict.get('action')
+                # position_str = data_dict.get('position')
+                # character_str = data_dict.get('character')
+                # action = Action(int(action_str))
+                # position = int(position_str)
+                # self.window.update_text(action, position, character_str)
+                self.window.set_text(data_dict.get('new_text'))
+            else:
+                self.log.warning('Unknown packet type: \'{}\''.format(packet_name))
+                return False
 
     def get_words(self):
         """
@@ -249,4 +271,3 @@ class Window:
         """
         words = self.code.text.get("1.0", END).split(" ")
         return words
-        
