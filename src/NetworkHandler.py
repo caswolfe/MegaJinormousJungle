@@ -104,7 +104,7 @@ class NetworkHandler:
         self.log.info('connected')
 
     def mqtt_on_message(self, client, userdata, msg):
-        self.log.info('received: \'{}\''.format(msg.payload))
+        #self.log.info('received: \'{}\''.format(msg.payload))
         # if self.unit_testing:
         #     dp = DataPacket()
         #     dp.parse_json(json.loads(msg.payload))

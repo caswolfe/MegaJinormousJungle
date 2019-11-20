@@ -381,7 +381,7 @@ class Window:
             dpcu.define_manually("None", position)
             #print(position, file)
             #self.log.debug(f"position {position} end pos {end_pos}")
-
+            sleep(5)
             self.net_hand.send_packet(dpcu)
             #except Exception:
             #    print('No file open')
