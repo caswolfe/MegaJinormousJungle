@@ -169,12 +169,21 @@ class MyTestCase(unittest.TestCase):
         packet_json_loaded.parse_json(packet_json)
         assert packet.__eq__(packet_json_loaded)
 
-        # test a multiple character change
-        # old_text: str = "this is a"
-        # new_text: str = "this is a test"
-        # packets: list[DataPacketDocumentEdit] = DataPacketDocumentEdit.generate_packets_from_changes(old_text, new_text, 'test_doc')
-        # applied_text = DataPacketDocumentEdit.apply_multiple_packets(old_text, packets)
-        # assert applied_text == new_text
+        # test a removal character change
+        old_text: str = "this is a test"
+        new_text: str = "this is a tes"
+        packet: DataPacketDocumentEdit = DataPacketDocumentEdit.generate_first_change_packet(old_text, new_text, 'test_doc')
+        assert packet.check_hash(old_text)
+        assert packet.action == Action.REMOVE
+        assert packet.position == 13
+        assert packet.character == 't'
+        applied_text: str = DataPacketDocumentEdit.apply_packet_data_dict(packet.data_dict.get('old_text_hash'),
+                                                                          packet.data_dict.get('action'),
+                                                                          packet.data_dict.get('position'),
+                                                                          packet.data_dict.get('character'),
+                                                                          DataPacketDocumentEdit.get_text_hash(
+                                                                              old_text), old_text)
+        assert applied_text == new_text
 
     @staticmethod
     def test_NWK_11():
@@ -344,14 +353,18 @@ class MyTestCase(unittest.TestCase):
         from DataPacketSaveRequest import DataPacketSaveRequest
 
         packet: DataPacketSaveRequest = DataPacketSaveRequest()
+        document = 'document'
+        packet.define_manually(document)
         assert packet.data_dict.keys().__contains__('packet-name')
         assert packet.data_dict.keys().__contains__('mac-addr')
         assert packet.data_dict.keys().__contains__('time-of-creation')
+        assert packet.data_dict.keys().__contains__('document')
         assert not packet.data_dict.keys().__contains__('time-of-send')
 
         assert packet.data_dict.get('packet-name').__eq__('DataPacketSaveRequest')
         assert packet.data_dict.get('mac-addr') is not None
         assert packet.data_dict.get('time-of-creation') is not None
+        assert packet.data_dict.get('document') == document
 
         packet.set_time_of_send()
         assert packet.data_dict.keys().__contains__('time-of-send')

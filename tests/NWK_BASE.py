@@ -199,5 +199,6 @@ class MyTestCase(unittest.TestCase):
     def on_message(self, client, user_data, msg):
         pass
 
+
 if __name__ == '__main__':
     unittest.main()
