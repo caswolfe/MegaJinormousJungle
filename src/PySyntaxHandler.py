@@ -29,6 +29,7 @@ class Syntax:
             for kw in self.keyword_list:
                 self.color_dict[kw] = self.COLORS[i]
                 i+=1
+            return True
         else:
             raise Exception("Need more colors for color scheme")
 
