@@ -281,13 +281,35 @@ class MyTestCase(unittest.TestCase):
         assert helper.packet_received_data_dict is not None
         pass
 
+    @staticmethod
+    def test_NWK_14():
+        """
+        Tests a DataPacketCursorUpdate
+        """
 
-    # # @staticmethod
-    # # def test_NWK_14():
-    # #     """
-    # #     Tests a DataPacketCursorUpdate
-    # #     """
-    # #     assert 1 == 1
+        # basic logging init
+        log = logging.getLogger('jumpy')
+        log_format = logging.Formatter('%(filename)s - %(lineno)d - %(levelname)s - %(message)s')
+        log.setLevel(logging.DEBUG)
+
+        # logging console init
+        log_handler_console = logging.StreamHandler()
+        log_handler_console.setLevel(logging.DEBUG)
+        log_handler_console.setFormatter(log_format)
+        log.addHandler(log_handler_console)
+
+        from DataPacketCursorUpdate import DataPacketCursorUpdate
+
+        dpcu = DataPacketCursorUpdate()
+        document_name = 'document'
+        position = '7:11'
+        dpcu.define_manually('document', '7:11')
+
+        assert dpcu.data_dict.__contains__('document')
+        assert dpcu.data_dict.__contains__('position')
+
+        assert dpcu.data_dict.get('document') == document_name
+        assert dpcu.data_dict.get('position') == position
 
     # # @staticmethod
     # # def test_NWK_15():
