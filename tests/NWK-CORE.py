@@ -332,6 +332,7 @@ class MyTestCase(unittest.TestCase):
         Tests a DataPacketSaveRequest
         :return:
         """
+
         # basic logging init
         log = logging.getLogger('jumpy')
         log_format = logging.Formatter('%(filename)s - %(lineno)d - %(levelname)s - %(message)s')
@@ -351,7 +352,7 @@ class MyTestCase(unittest.TestCase):
         assert packet.data_dict.keys().__contains__('time-of-creation')
         assert not packet.data_dict.keys().__contains__('time-of-send')
 
-        assert packet.data_dict.get('packet-name').__eq__('DataPacket')
+        assert packet.data_dict.get('packet-name').__eq__('DataPacketSaveRequest')
         assert packet.data_dict.get('mac-addr') is not None
         assert packet.data_dict.get('time-of-creation') is not None
 
@@ -360,12 +361,35 @@ class MyTestCase(unittest.TestCase):
         assert packet.data_dict.get('time-of-send') is not None
 
     @staticmethod
-    def test_NWK_17():
+    def test_NWK_18():
         """
         Tests a DataPacketSaveDump
         :return:
         """
-        assert 1 == 1
+
+        # basic logging init
+        log = logging.getLogger('jumpy')
+        log_format = logging.Formatter('%(filename)s - %(lineno)d - %(levelname)s - %(message)s')
+        log.setLevel(logging.DEBUG)
+
+        # logging console init
+        log_handler_console = logging.StreamHandler()
+        log_handler_console.setLevel(logging.DEBUG)
+        log_handler_console.setFormatter(log_format)
+        log.addHandler(log_handler_console)
+
+        from DataPacketSaveDump import DataPacketSaveDump
+
+        packet: DataPacketSaveDump = DataPacketSaveDump()
+        document = 'document'
+        text = 'this is some text from a document\no yes it is!!!'
+        packet.define_manually(document, text)
+
+        assert packet.data_dict.__contains__('document')
+        assert packet.data_dict.__contains__('text')
+
+        assert packet.data_dict.get('document') == document
+        assert packet.data_dict.get('text') == text
 
 
 if __name__ == '__main__':

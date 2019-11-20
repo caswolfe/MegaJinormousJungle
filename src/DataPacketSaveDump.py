@@ -23,6 +23,6 @@ class DataPacketSaveDump(DataPacket):
 
     def update_data_dict(self) -> None:
         super().update_data_dict()
-        self.data_dict.update({'document': self.text_hash})
+        self.data_dict.update({'document': self.document})
         self.data_dict.update({'text_hash': self.text_hash})
         self.data_dict.update({'text': self.text})
