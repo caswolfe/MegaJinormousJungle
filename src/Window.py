@@ -12,6 +12,7 @@ from CodeFrame import CodeFrame
 from DataPacket import DataPacket
 from DataPacketDocumentEdit import DataPacketDocumentEdit, Action
 from DataPacketRequestJoin import DataPacketRequestJoin
+from DataPacketRequestResponse import DataPacketRequestResponse
 from NetworkHandler import NetworkHandler
 from PySyntaxHandler import Syntax
 from DataPacketCursorUpdate import DataPacketCursorUpdate
@@ -326,6 +327,11 @@ class Window:
                     self.log.debug("New Text: \'{}\"".format(self.code.text.get("1.0", END)))
                 else:
                     self.log.error("FUCK")
+            elif packet_name == 'DataPacketRequestJoin':
+                if self.is_host:
+                    result = messagebox.askyesno("jumpy request", "Allow \'{}\' to join the lobby?".format(data_dict.get('mac_addr')))
+                    dprr = DataPacketRequestResponse()
+                    dprr.define_manually(data_dict.get('mac_addr'), result)
             else:
                 self.log.warning('Unknown packet type: \'{}\''.format(packet_name))
                 return False
