@@ -334,10 +334,13 @@ class Window:
                     dprr.define_manually(data_dict.get('mac_addr'), result)
                     self.net_hand.send_packet(dprr)
             elif packet_name == 'DataPacketRequestResponse':
+                self.log.debug('Received a DataPacketRequestResponse')
                 can_join = data_dict.get('can_join')
-                if can_join == 'true':
+                if can_join:
+                    self.log.debug('allowed into the lobby')
                     messagebox.showinfo("jumpy", "You have been accepted into the lobby!")
                 else:
+                    self.log.debug('rejected from the lobby')
                     messagebox.showerror("jumpy", "You have NOT been accepted into the lobby...")
                     self.net_hand.close_connection()
             else:
