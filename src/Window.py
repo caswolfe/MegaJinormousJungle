@@ -115,7 +115,7 @@ class Window:
                 item_path = location+ "/" + item 
                 # condition so that folders that start with "." are not displayed
                 if os.path.isfile(item_path) or not item.startswith("."):
-                    Radiobutton(self.radio_frame, text = item, variable=self.current_file_name, command=self.open_item, value=item_path, indicator=0).pack(fill = 'x', ipady = 1)
+                    Radiobutton(self.radio_frame, text = item, variable=self.current_file_name, command=self.open_item, value=item_path, indicator=0).pack(fill = 'x', ipady = 0)
 
     #TODO add functionality to clicking on folders (change current folder to that folder, have a back button to go to original folder)
     def open_item(self):

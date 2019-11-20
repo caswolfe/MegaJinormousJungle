@@ -1,21 +1,8 @@
-try:
-    from src.DataPacket import DataPacket
-    from src.DataPacketDocumentEdit import Action
-    from src import Window
-    from src.NetworkActionHandler import NetworkActionHandler
-    from src.NetworkHandler import NetworkHandler
-except ImportError as ie:
-    try:
-        # TODO: linux imports
-        from DataPacket import DataPacket
-        from DataPacketDocumentEdit import Action
-        from Window import Window
-        from NetworkActionHandler import NetworkActionHandler
-        from NetworkHandler import NetworkHandler
-    except ImportError as ie2:
-        print('cant import???')
-        exit(-1)
-
+from DataPacket import DataPacket
+from DataPacketDocumentEdit import Action
+from Window import Window
+from NetworkActionHandler import NetworkActionHandler
+from NetworkHandler import NetworkHandler
 import unittest
 
 
@@ -50,7 +37,7 @@ class testConnection(unittest.TestCase):
         assert self.net_hand.is_connected
         self.net_hand.close_connection()
         assert not self.net_hand.is_connected
-
+        
 
 if __name__ == "__main__":
     unittest.main()
