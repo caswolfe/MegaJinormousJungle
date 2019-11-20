@@ -2,9 +2,6 @@ import json
 import unittest
 import logging
 import sys
-
-
-
 sys.path.append("../src/")
 from DataPacket import DataPacket
 
