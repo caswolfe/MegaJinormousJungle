@@ -312,7 +312,7 @@ class Window:
         else:
             if packet_name == 'DataPacket':
                 self.log.debug('Received a DataPacket')
-            elif packet_name == 'DataPacketDocumentEdit' and self.have_perms:
+            elif packet_name == 'DataPacketDocumentEdit':
                 self.log.debug('Received a DataPacketDocumentEdit')
                 self.log.debug(data_dict)
                 text = self.code.text.get("1.0", END)
@@ -326,7 +326,7 @@ class Window:
                     self.log.debug("New Text: \'{}\"".format(self.code.text.get("1.0", END)))
                 else:
                     self.log.error("FUCK")
-            elif packet_name == 'DataPacketRequestJoin' and self.have_perms:
+            elif packet_name == 'DataPacketRequestJoin':
                 if self.is_host:
                     result = messagebox.askyesno("jumpy request", "Allow \'{}\' to join the lobby?".format(data_dict.get('mac-addr')))
                     dprr = DataPacketRequestResponse()
@@ -337,9 +337,11 @@ class Window:
                 can_join = data_dict.get('can_join')
                 if can_join:
                     self.log.debug('allowed into the lobby')
+                    self.have_perms = True
                     messagebox.showinfo("jumpy", "You have been accepted into the lobby!")
                 else:
                     self.log.debug('rejected from the lobby')
+                    self.have_perms = False
                     messagebox.showerror("jumpy", "You have NOT been accepted into the lobby...")
                     self.net_hand.close_connection()
             else:
