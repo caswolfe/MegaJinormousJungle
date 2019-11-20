@@ -329,7 +329,7 @@ class Window:
         packet_name = data_dict.get('packet-name')
         print(packet_name)
         print(data_dict)
-        if 1 != 1: # data_dict.get('mac-addr') == self.mac:
+        if data_dict.get('mac-addr') == self.mac:
             self.log.debug('received packet from self, ignoring...')
         else:
             if packet_name == 'DataPacket':
