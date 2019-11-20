@@ -98,7 +98,7 @@ class Window:
         # visual packs
         self.top_frame.pack(side="top",fill='both', expand=True)
         self.bottom_frame.pack(side="bottom",fill='both', expand=True)        
-        self.files.pack(side="left",fill='both', expand=True)
+        self.files.pack(side="left",fill='both')
         self.code.pack(side="right",fill='both', expand=True)
         self.terminal.pack(fill='both', expand=True)
 
