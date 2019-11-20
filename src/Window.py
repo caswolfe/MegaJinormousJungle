@@ -3,25 +3,6 @@ from tkinter import *
 from tkinter import filedialog, messagebox
 import os
 
-<<<<<<< HEAD
-
-# try:
-#     from src.DataPacketDocumentEdit import DataPacketDocumentEdit, Action
-#     from src.NetworkActionHandler import NetworkActionHandler
-#     from src.NetworkHandler import NetworkHandler
-# except ImportError as ie:
-#     try:
-#         # TODO: linux imports
-from DataPacketDocumentEdit import DataPacketDocumentEdit, Action
-from NetworkActionHandler import NetworkActionHandler
-from NetworkHandler import NetworkHandler
-from NetworkActionQueue import ActionQueue
-from PySyntaxHandler import Syntax
-        
-    # except ImportError as ie2:
-    #     print('cant import???')
-    #     exit(-1)
-=======
 try:
     from src.CodeFrame import CodeFrame
     from src.DataPacketDocumentEdit import DataPacketDocumentEdit, Action
@@ -34,10 +15,10 @@ except ImportError as ie:
         from DataPacketDocumentEdit import DataPacketDocumentEdit, Action
         from NetworkActionHandler import NetworkActionHandler
         from NetworkHandler import NetworkHandler
+        from PySyntaxHandler import Syntax
     except ImportError as ie2:
         print('cant import???')
         exit(-1)
->>>>>>> GUI
 
 class Window:
     """
@@ -166,9 +147,9 @@ class Window:
         to_save_file.write(self.code.text.get("1.0", END))
         to_save_file.close()
 
-    def update_text(self, action: Action, position: int, character: str, q: ActionQueue):
+    def update_text(self, action: Action, position: int, character: str):
         self.log.debug('updating text with action: \'{}\', position: \'{}\', character: \'{}\''.format(action, position, repr(character)))
-        text_current = self.text.get("1.0", END)
+        text_current = self.code.text.get("1.0", END)
         text_new = text_current[1:position+1] + character + text_current[position+1:]
         self.log.debug(f"current text:{repr(text_current)} \n updated text {repr(text_new)}")
         self.code.text.delete("1.0", END)
@@ -187,19 +168,14 @@ class Window:
         #     pass
 
     def set_text(self, new_text: str):
-<<<<<<< HEAD
         """
         Sets the text on the Text object directly.
         Author: Chad
         Args: new_text: string
         Returns: 
         """
-        self.text.delete("1.0", END)
-        self.text.insert("1.0", new_text)
-=======
         self.code.text.delete("1.0", END)
         self.code.text.insert("1.0", new_text)
->>>>>>> GUI
 
     def handle_event(self, event):
         """
@@ -211,66 +187,15 @@ class Window:
         Returns:
         Interactions: sends DataPacketDocumentEdit
         """
-<<<<<<< HEAD
-        if self.net_hand.is_connected:
-            new_text = self.text.get("1.0", END)
-            packet = DataPacketDocumentEdit(old_text=self.old_text, new_text=new_text)
-            if packet.character == '' or new_text == self.old_text:
-                return
-            else:
-                self.net_hand.send_packet(packet)
-        self.syntax_highlighting()
-        self.old_text = self.text.get("1.0", END)
-
-    def syntax_highlighting(self, lang = 'python'):
-        """
-        Highlights key elements of syntax with a color as defined in the 
-        language's SyntaxHandler. Only 'python' is currently implemented,   
-        but more can easily be added in the future.
-        Author: Ben
-        Args: lang: string, which language to use
-        Returns: 
-
-        TODO: fix so keywords inside another keyword aren't highlighted
-        TODO: make so that it doesn't trigger after every character
-        TODO: run on seperate thread at interval or trigger (perhaps at spacebar? would reduce work)
-        """
-        for tag in self.text.tag_names():
-            self.text.tag_delete(tag)
-        if lang == 'python':
-            SyntaxHandler = Syntax()
-
-        syntax_dict = SyntaxHandler.get_color_dict()
-        for kw in SyntaxHandler.get_keywords():
-            idx = '1.0'
-            color = syntax_dict[kw]
-            self.text.tag_config(color, foreground=color)
-           # search_term =#rf'\\y{kw}\\y'   # ' '+ kw + ' '
-            while idx:
-                idx = self.text.search('\\y' + kw +'\\y', idx, nocase=1, stopindex=END, regexp=True)
-                if idx:
-                    #self.log.debug(idx)    
-                    nums = idx.split('.')
-                    nums = [int(x) for x in nums]
-                    #self.log.debug(f"{left} { right}")
-                    lastidx = '%s+%dc' % (idx, len(kw))
-                    self.text.tag_add(color, idx, lastidx)
-                    idx = lastidx
-            
-
-
-    def get_words(self):
-        """
-        Gets all words (definition: seperated by a space character) in the
-        Text object.
-        Author: Ben
-        Args: 
-        Returns: words: list a list a words in the Text object
-        """
-        words = self.text.get("1.0", END).split(" ")
-        return words
-        
-=======
+        # if self.net_hand.is_connected:
+        #     new_text = self.code.text.get("1.0", END)
+        #     packet = DataPacketDocumentEdit(old_text=self.old_text, new_text=new_text)
+        #     if packet.character == '' or new_text == self.old_text:
+        #         return
+        #     else:
+        #         self.net_hand.send_packet(packet)
+        # self.syntax_highlighting()
+        # self.old_text = self.code.text.get("1.0", END)
         if event.widget == self.terminal:
             # handle terminal event
             #TODO pipe command to terminal, prevent editing previous lines
@@ -285,4 +210,53 @@ class Window:
                 self.net_hand.send_packet(packet)
 
             self.old_text = self.code.text.get("1.0", END)
->>>>>>> GUI
+        self.syntax_highlighting()
+
+    def syntax_highlighting(self, lang = 'python'):
+        """
+        Highlights key elements of syntax with a color as defined in the 
+        language's SyntaxHandler. Only 'python' is currently implemented,   
+        but more can easily be added in the future.
+        Author: Ben
+        Args: lang: string, which language to use
+        Returns: 
+
+        TODO: fix so keywords inside another keyword aren't highlighted
+        TODO: make so that it doesn't trigger after every character
+        TODO: run on seperate thread at interval or trigger (perhaps at spacebar? would reduce work)
+        """
+        for tag in self.code.text.tag_names():
+            self.code.text.tag_delete(tag)
+        if lang == 'python':
+            SyntaxHandler = Syntax()
+
+        syntax_dict = SyntaxHandler.get_color_dict()
+        for kw in SyntaxHandler.get_keywords():
+            idx = '1.0'
+            color = syntax_dict[kw]
+            self.code.text.tag_config(color, foreground=color)
+           # search_term =#rf'\\y{kw}\\y'   # ' '+ kw + ' '
+            while idx:
+                idx = self.code.text.search('\\y' + kw +'\\y', idx, nocase=1, stopindex=END, regexp=True)
+                if idx:
+                    #self.log.debug(idx)    
+                    nums = idx.split('.')
+                    nums = [int(x) for x in nums]
+                    #self.log.debug(f"{left} { right}")
+                    lastidx = '%s+%dc' % (idx, len(kw))
+                    self.code.text.tag_add(color, idx, lastidx)
+                    idx = lastidx
+            
+
+
+    def get_words(self):
+        """
+        Gets all words (definition: seperated by a space character) in the
+        Text object.
+        Author: Ben
+        Args: 
+        Returns: words: list a list a words in the Text object
+        """
+        words = self.code.text.get("1.0", END).split(" ")
+        return words
+        
