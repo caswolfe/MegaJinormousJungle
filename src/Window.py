@@ -275,7 +275,10 @@ class Window:
                     self.log.debug("YEET")
                     packet = DataPacketDocumentEdit()
                     packet.parse_json(packet_str)
+                    self.log.debug("Old Text: \'{}\"".format(text))
+                    self.code.text.delete("1.0", END)
                     self.code.text.insert("1.0", DataPacketDocumentEdit.apply_packet(text, packet))
+                    self.log.debug("New Text: \'{}\"".format(self.code.text.get("1.0", END)))
                 else:
                     self.log.error("FUCK")
                 # action = Action(int(data_dict.get('action')))
