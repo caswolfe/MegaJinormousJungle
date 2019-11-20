@@ -49,7 +49,6 @@ class Window:
     def __init__(self):
 
         self.net_hand = NetworkHandler(self.parse_message)
-       # self.net_hand.add_network_action_handler(self.nah)
         self.cursor_thread_run = True
         self.cursor_thread = Thread(target=self.track_cursor)
 
@@ -103,13 +102,13 @@ class Window:
         """
         self.root.mainloop()
 
-    #TODO for folders with alot of files add a scrollbar, when file is changed clear terminal and change terminal directory (change ">>>" to "[directory path]>")
+    # TODO for folders with alot of files add a scrollbar, when file is changed clear terminal and change terminal directory (change ">>>" to "[directory path]>")
     def open_folder(self):
         location = filedialog.askdirectory()
 
         if location != "":
 
-            #clear text and delete current radio buttons
+            # clear text and delete current radio buttons
             self.code.text.delete("1.0", END)
             self.radio_frame.destroy()
             self.radio_frame = Scrollbar(self.files, orient="vertical")
@@ -123,9 +122,10 @@ class Window:
                     Radiobutton(self.radio_frame, text = item, variable=self.current_file_name, command=self.open_item, value=item_path, indicator=0).pack(fill = 'x', ipady = 0)
 
             # starts cursor tracking thread
-            self.cursor_thread.start()
+            # TODO: uncomment
+            # self.cursor_thread.start()
 
-    #TODO add functionality to clicking on folders (change current folder to that folder, have a back button to go to original folder)
+    # TODO add functionality to clicking on folders (change current folder to that folder, have a back button to go to original folder)
     def open_item(self):
         if os.path.isfile(self.current_file_name.get()):
             self.code.text.delete("1.0", END)
@@ -134,6 +134,7 @@ class Window:
             try:
                 self.code.text.insert(1.0, file.read())
                 self.syntax_highlighting()
+                self.old_text = self.code.text.get("1.0", END)
             except:
                 self.code.text.insert(1.0,"Can not interperate this file")
             file.close()
@@ -205,8 +206,15 @@ class Window:
         elif event.widget == self.code.text:
             # handle text event
             if self.net_hand.is_connected:
-                packet = DataPacketDocumentEdit(old_text=self.old_text, new_text=self.code.text.get("1.0", END))
-                self.net_hand.send_packet(packet)
+                # packet = DataPacketDocumentEdit(old_text=self.old_text, new_text=self.code.text.get("1.0", END))
+                filename = "None"
+                try:
+                    filename = self.current_file_name.get().rsplit('/', 1)[1]
+                except IndexError:
+                    pass
+                packets: list[DataPacketDocumentEdit] = DataPacketDocumentEdit.generate_packets_from_changes(self.old_text, self.code.text.get("1.0", END), filename)
+                for packet in packets:
+                    self.net_hand.send_packet(packet)
 
             self.old_text = self.code.text.get("1.0", END)
 
