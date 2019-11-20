@@ -127,7 +127,12 @@ class DataPacketDocumentEdit(DataPacket):
         :return: a new string with the new text
         """
         if packet.check_hash(text):
-            return text[:packet.data_dict.get('position')] + packet.data_dict.get('character') + text[packet.data_dict.get('position'):]
+            if packet.data_dict.get('Action') == 1:
+                return text[:packet.data_dict.get('position')] + packet.data_dict.get('character') + text[packet.data_dict.get('position'):]
+            elif packet.data_dict.get('Action') == 2:
+                return text[:packet.data_dict.get('position')] + text[packet.data_dict.get('position')+1:]
+            else:
+                exit(-69)
         else:
             raise Exception("Hash Mismatch")
 
@@ -165,9 +170,20 @@ class DataPacketDocumentEdit(DataPacket):
 
 
     @staticmethod
-    def apply_packet_data_dict(packet_hash, packet_positon, packet_character, current_hash, text) -> str:
+    def apply_packet_data_dict(packet_hash, packet_action, packet_positon, packet_character, current_hash, text) -> str:
         if packet_hash == current_hash:
-            return text[:packet_positon] + packet_character + text[packet_positon:]
+            # if packet.data_dict.get('Action') == 1:
+            #     return text[:packet.data_dict.get('position')] + packet.data_dict.get('character') + text[packet.data_dict.get('position'):]
+            # elif packet.data_dict.get('Action') == 2:
+            #     return text[:packet.data_dict.get('position')] + text[packet.data_dict.get('position')+1:]
+            # else:
+            #     exit(-69)
+            if packet_action == 1:
+                return text[:packet_positon] + packet_character + text[packet_positon:]
+            elif packet_action == 2:
+                return text[:packet_positon] + text[packet_positon+1:]
+            else:
+                exit(-69)
         else:
             raise Exception("Hash Mismatch")
 

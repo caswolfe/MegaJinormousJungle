@@ -277,7 +277,7 @@ class Window:
                     self.log.debug("YEET")
                     self.log.debug("Old Text: \'{}\"".format(text))
                     self.code.text.delete("1.0", END)
-                    self.code.text.insert("1.0", DataPacketDocumentEdit.apply_packet_data_dict(data_dict.get('old_text_hash'), data_dict.get('position'), data_dict.get('character'), text_hash, text))
+                    self.code.text.insert("1.0", DataPacketDocumentEdit.apply_packet_data_dict(data_dict.get('old_text_hash'), data_dict.get('action'), data_dict.get('position'), data_dict.get('character'), text_hash, text))
                     self.code.text.delete('end-1c', 'end')
                     self.log.debug("New Text: \'{}\"".format(self.code.text.get("1.0", END)))
                 else:
