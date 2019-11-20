@@ -104,7 +104,6 @@ class Window:
 
     #TODO for folders with alot of files add a scrollbar, when file is changed clear terminal and change terminal directory (change ">>>" to "[directory path]>")
     def open_folder(self):
-        #self.track_cursor()
         location = filedialog.askdirectory()
 
         if location != "":
@@ -121,6 +120,9 @@ class Window:
                 # condition so that folders that start with "." are not displayed
                 if os.path.isfile(item_path) or not item.startswith("."):
                     Radiobutton(self.radio_frame, text = item, variable=self.current_file_name, command=self.open_item, value=item_path, indicator=0).pack(fill = 'x', ipady = 1)
+
+            # starts cursor tracking thread
+            self.cursor_thread.start()
 
     #TODO add functionality to clicking on folders (change current folder to that folder, have a back button to go to original folder)
     def open_item(self):
@@ -254,11 +256,13 @@ class Window:
         return words
 
     def track_cursor(self):
-        #while self.cursor_thread_run:
-        position = self.code.text.index(INSERT)
-        file = self.current_file_name
-        print(position, file)
-
-        # send position of cursor to others
-        sleep(1)
+        while self.cursor_thread_run:
+            position = self.code.text.index(INSERT)
+            try:
+                file = self.current_file_name.get().rsplit('/', 1)[1]
+                print(position, file)
+            except Exception:
+                print('No file open')
+            # send position of cursor to others
+            sleep(1)
 
