@@ -136,8 +136,9 @@ class Window:
         Shows the window.
         """
         self.autosave_thread.start() #TODO: fix for better placing
-        self.root.mainloop()
         self.cursor_thread.start()
+        self.root.mainloop()
+        
 
     # TODO for folders with alot of files add a scrollbar, when file is changed clear terminal and change terminal directory (change ">>>" to "[directory path]>")
     def open_folder(self):
@@ -371,17 +372,25 @@ class Window:
         cursor_2 = self.code.text.tag_config("c2", background='blue')
         while self.cursor_thread_run:
             position = self.code.text.index(INSERT)
-            try:
-                file = self.current_file_name.get().rsplit('/', 1)[1]
-                dpcu = DataPacketCursorUpdate()
-                dpcu.define_manually(file, position)
-                #print(position, file)
-                self.log.debug(f"position {position}")
-                #self.net_hand.send_packet(dpcu)
-            except Exception:
-                print('No file open')
+            pos_int = [int(x) for x in position.split(".")]
+            end_pos = f'{pos_int[0]}.{pos_int[1]+1}'
+            self.code.text.tag_add("c1", position, end_pos)
+           # try:
+              #  file = self.current_file_name.get().rsplit('/', 1)[1]
+            dpcu = DataPacketCursorUpdate()
+            dpcu.define_manually("None", position)
+            #print(position, file)
+            #self.log.debug(f"position {position} end pos {end_pos}")
+
+            self.net_hand.send_packet(dpcu)
+            #except Exception:
+            #    print('No file open')
             # send position of cursor to others
-            sleep(1)
+            while not self.handle_event:
+                sleep(1)
+            self.code.text.tag_remove("c1",position, end_pos)
+
+
 
 
     def autosave(self):
