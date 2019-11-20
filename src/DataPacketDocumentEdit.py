@@ -4,15 +4,8 @@ from enum import Enum
 import logging
 import json
 
-try:
-    from src.DataPacket import DataPacket
-except ImportError as ie:
-    try:
-        # TODO: linux imports
-        from DataPacket import DataPacket
-    except ImportError as ie2:
-        print('cant import???')
-        exit(-1)
+
+from DataPacket import DataPacket
 
 
 class DataPacketDocumentEdit(DataPacket):

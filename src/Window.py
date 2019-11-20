@@ -3,23 +3,12 @@ from tkinter import *
 from tkinter import filedialog, messagebox
 import os
 
-try:
-    from src.CodeFrame import CodeFrame
-    from src.DataPacketDocumentEdit import DataPacketDocumentEdit, Action
-    from src.NetworkActionHandler import NetworkActionHandler
-    from src.NetworkHandler import NetworkHandler
-    from PySyntaxHandler import Syntax
-except ImportError as ie:
-    try:
-        # TODO: linux imports 
-        from CodeFrame import CodeFrame
-        from DataPacketDocumentEdit import DataPacketDocumentEdit, Action
-        from NetworkActionHandler import NetworkActionHandler
-        from NetworkHandler import NetworkHandler
-        from PySyntaxHandler import Syntax
-    except ImportError as ie2:
-        print('cant import???')
-        exit(-1)
+
+from CodeFrame import CodeFrame
+from DataPacketDocumentEdit import DataPacketDocumentEdit, Action
+from NetworkActionHandler import NetworkActionHandler
+from NetworkHandler import NetworkHandler
+from PySyntaxHandler import Syntax
 
 class Window:
     """

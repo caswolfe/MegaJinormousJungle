@@ -2,20 +2,12 @@ import json
 import logging
 import uuid
 
-# try:
-#     from src.DataPacket import DataPacket
-#     from src.DataPacketDocumentEdit import Action
-#     from src import Window
-# except ImportError as ie:
-#     try:
-#         # TODO: linux imports
+
 from DataPacket import DataPacket
 from DataPacketDocumentEdit import Action
 import Window
 from NetworkActionQueue import ActionQueue
-    # except ImportError as ie2:
-    #     print('cant import???')
-    #     exit(-1)
+
 
 class NetworkActionHandler:
     
@@ -25,7 +17,8 @@ class NetworkActionHandler:
         self.window = window
         self.log = logging.getLogger('jumpy')
         self.mac = hex(uuid.getnode())
-        queue = ActionQueue()
+        queue = ActionQueue() 
+
 
     def parse_message(self, packet: DataPacket):
         data_dict = json.loads(packet)
