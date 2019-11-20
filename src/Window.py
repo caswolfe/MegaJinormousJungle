@@ -11,6 +11,7 @@ from time import sleep
 from CodeFrame import CodeFrame
 from DataPacket import DataPacket
 from DataPacketDocumentEdit import DataPacketDocumentEdit, Action
+from DataPacketRequestJoin import DataPacketRequestJoin
 from NetworkHandler import NetworkHandler
 from PySyntaxHandler import Syntax
 from DataPacketCursorUpdate import DataPacketCursorUpdate
@@ -58,6 +59,8 @@ class Window:
         self.log = logging.getLogger('jumpy')
 
         self.mac = hex(uuid.getnode())
+        self.is_host = False
+        self.have_perms = False
 
         self.create()
 
@@ -82,12 +85,19 @@ class Window:
 
         def create():
             val = simpledialog.askstring("Lobby name", "Please name your lobby")
-            self.net_hand.open_lobby(val)
+            self.net_hand.join_lobby(val)
+            self.is_host = True
+            self.have_perms = True
             self.net_hand.establish_connection()
 
         def join():
             val = simpledialog.askstring("Lobby name", "Please input the lobby you want to join.")
             self.net_hand.join_lobby(val)
+            self.net_hand.establish_connection()
+            self.is_host = False
+            self.have_perms = False
+            dprj = DataPacketRequestJoin()
+            self.net_hand.send_packet(dprj)
 
         self.menu_connections.add_command(label='Disconnect', command=self.net_hand.close_lobby)
         self.menu_connections.add_command(label='Create lobby', command=create)
@@ -291,6 +301,8 @@ class Window:
         else:
             self.terminal.insert(END,">>>")
     def parse_message(self, packet_str: DataPacket):
+        if not self.have_perms:
+            return
         data_dict = json.loads(packet_str)
         packet_name = data_dict.get('packet-name')
         print(packet_name)

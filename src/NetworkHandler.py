@@ -113,7 +113,7 @@ class NetworkHandler:
         self.parse_message_function(msg.payload)
 
     def mqtt_on_subscribe(self, client, obj, mid, granted_qos):
-        self.log.info('subscribed')
+        self.log.info('subscribed, qos \'{}\''.format(granted_qos[0]))
 
     def mqtt_on_publish(self):
         self.log.info('published')
