@@ -46,7 +46,8 @@ class Window:
 
     # other variables
     current_directory = None
-    current_terminal = ""
+    current_terminal_buffer_column = 0
+    current_terminal_buffer_line = 0
     current_file_name = StringVar()
     current_file = None
     old_text = ""
@@ -109,7 +110,8 @@ class Window:
 
         # terminal default
         self.terminal.insert("1.0","Console:\n>>>")
-        self.current_terminal = "Console:\n>>>"
+        self.current_terminal_buffer_column = 3
+        self.current_terminal_buffer_line = 2
 
         #  text default
         self.old_text = self.code.text.get("1.0", END)
@@ -230,18 +232,25 @@ class Window:
         # self.syntax_highlighting()
         # self.old_text = self.code.text.get("1.0", END)
         if event.widget == self.terminal:
+            cursor_line, cursor_column = [int(x) for x in self.terminal.index(INSERT).split('.')]
             # handle terminal event
             #TODO pipe command to terminal, prevent deleting or moving to previous lines 
             if event.char == '\r':
                 if self.current_directory:
                     self.terminal.insert(END,self.current_directory + ">")
+                    self.current_terminal_buffer_column = len(self.current_directory) + 1
                 else:
                     self.terminal.insert(END,">>>")
+                self.current_terminal_buffer_line += 1
             if event.char == '\x03':
                 self.reset_terminal()
-            if event.char == '\x08':
-                #THIS IS WHERE I NEED TO DO SOMETHING ABOUT PREVENTING MOVING TO PREVIOUS LINES
-                pass
+            if cursor_column < self.current_terminal_buffer_column:
+                if event.keycode == 37:
+                    self.terminal.mark_set("insert", "%d.%d" % (self.current_terminal_buffer_line, cursor_column + 1))
+                elif event.char == '\x08':
+                    self.terminal.insert(END, ">")
+            if cursor_line < self.current_terminal_buffer_line:
+                    self.terminal.mark_set("insert", "%d.%d" % (cursor_line + 1, self.current_terminal_buffer_column))
         elif event.widget == self.code.text:
             # handle text event
             if self.net_hand.is_connected:
@@ -299,8 +308,12 @@ class Window:
         self.terminal.insert(END,"\n")
         if self.current_directory:
             self.terminal.insert(END,self.current_directory + ">")
+            self.current_terminal_buffer_column = len(self.current_directory) + 1
         else:
             self.terminal.insert(END,">>>")
+            self.current_terminal_buffer_column = 3
+        self.current_terminal_buffer_line = 2
+
     def parse_message(self, packet_str: DataPacket):
         if not self.have_perms:
             return
