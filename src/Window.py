@@ -333,6 +333,13 @@ class Window:
                     dprr = DataPacketRequestResponse()
                     dprr.define_manually(data_dict.get('mac_addr'), result)
                     self.net_hand.send_packet(dprr)
+            elif packet_name == 'DataPacketRequestResponse':
+                can_join = data_dict.get('can_join')
+                if can_join == 'true':
+                    messagebox.showinfo("jumpy", "You have been accepted into the lobby!")
+                else:
+                    messagebox.showerror("jumpy", "You have NOT been accepted into the lobby...")
+                    self.net_hand.close_connection()
             else:
                 self.log.warning('Unknown packet type: \'{}\''.format(packet_name))
                 return False
