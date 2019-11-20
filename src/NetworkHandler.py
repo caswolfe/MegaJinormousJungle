@@ -40,6 +40,7 @@ class NetworkHandler:
         self.unit_testing = False
         self.unit_testing_received_packet = None
 
+        self.lobby = None
         # misc
         # self.mac = hex(uuid.getnode())
 
@@ -65,11 +66,12 @@ class NetworkHandler:
         self.mc.loop_stop()
         self.mc.disconnect()
 
-    def open_lobby(self, lobby_name: str):
-        pass
+    def join_lobby(self, lobby_name: str):
+        self.lobby = lobby_name
 
     def close_lobby(self, lobby_name: str):
-        pass
+        self.lobby = None
+        self.close_connection()
 
     # def open_as_host(self) -> bool:\n    #     """\n    #     Opens connections with this machine as host.\n    #     """\n    #     pass
 

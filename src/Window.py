@@ -2,7 +2,7 @@ import json
 import logging
 import uuid
 from tkinter import *
-from tkinter import filedialog, messagebox
+from tkinter import filedialog, messagebox , simpledialog
 import os
 from threading import Thread
 from time import sleep
@@ -76,8 +76,20 @@ class Window:
         self.menu_file.add_command(label="Save", command=self.save_file)
 
         # connections sub-menu
-        self.menu_connections.add_command(label='Connect', command=self.net_hand.establish_connection)
-        self.menu_connections.add_command(label='Disconnect', command=self.net_hand.close_connection)
+       # self.menu_connections.add_command(label='Connect', command=self.net_hand.establish_connection)
+
+        def create():
+            val = simpledialog.askstring("Lobby name", "Please name your lobby")
+            self.net_hand.open_lobby(val)
+            self.net_hand.establish_connection()
+
+        def join():
+            val = simpledialog.askstring("Lobby name", "Please input the lobby you want to join.")
+            self.net_hand.join_lobby(val)
+
+        self.menu_connections.add_command(label='Disconnect', command=self.net_hand.close_lobby)
+        self.menu_connections.add_command(label='Create lobby', command=create)
+        self.menu_connections.add_command(label='Join lobby', command=join)
 
         # add menubar to root
         self.root.config(menu=self.menu_bar)
