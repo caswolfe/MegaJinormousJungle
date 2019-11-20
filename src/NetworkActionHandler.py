@@ -50,7 +50,4 @@ class NetworkActionHandler:
                 self.window.set_text(data_dict.get('new_text'))
             else:
                 self.log.warning('Unknown packet type: \'{}\''.format(packet_name))
-<<<<<<< HEAD
                 return False
-=======
->>>>>>> networking
