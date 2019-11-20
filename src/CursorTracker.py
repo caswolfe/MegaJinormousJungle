@@ -1,22 +1,18 @@
 from tkinter import *
 from tkinter import filedialog, messagebox
+from time import sleep
 
 
 class CursorTracker:
 
-    window = None
-
     def __init__(self, window):
         self.window = window
+        self.text = window.text
+        self.root = window.root
+        self.run = True
 
-    text = window.text
-    root = window.root
-
-    def track_cursor(self):
-        while True:
-            position = self.get_cursor_position()
+    def track_cursor(self, window):
+        while self.run:
+            position = self.text.index(INSERT)
             # send position of cursor to others
-
-    def get_cursor_position(self):
-        position = self.text.index(INSERT)
-        return position
+            sleep(1)

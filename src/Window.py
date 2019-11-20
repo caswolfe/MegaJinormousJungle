@@ -2,6 +2,8 @@ import logging
 from tkinter import *
 from tkinter import filedialog, messagebox
 import os
+from threading import Thread
+from time import sleep
 
 
 from CodeFrame import CodeFrame
@@ -47,6 +49,8 @@ class Window:
         self.net_hand = NetworkHandler()
         self.nah = NetworkActionHandler(self)
         self.net_hand.add_network_action_handler(self.nah)
+        self.cursor_thread_run = True
+        self.cursor_thread = Thread(target=self.track_cursor)
 
         self.log = logging.getLogger('jumpy')
 
@@ -100,6 +104,7 @@ class Window:
 
     #TODO for folders with alot of files add a scrollbar, when file is changed clear terminal and change terminal directory (change ">>>" to "[directory path]>")
     def open_folder(self):
+        #self.track_cursor()
         location = filedialog.askdirectory()
 
         if location != "":
@@ -236,8 +241,6 @@ class Window:
                     lastidx = '%s+%dc' % (idx, len(kw))
                     self.code.text.tag_add(color, idx, lastidx)
                     idx = lastidx
-            
-
 
     def get_words(self):
         """
@@ -249,4 +252,13 @@ class Window:
         """
         words = self.code.text.get("1.0", END).split(" ")
         return words
-        
+
+    def track_cursor(self):
+        #while self.cursor_thread_run:
+        position = self.code.text.index(INSERT)
+        file = self.current_file_name
+        print(position, file)
+
+        # send position of cursor to others
+        sleep(1)
+
