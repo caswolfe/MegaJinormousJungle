@@ -16,6 +16,7 @@ from DataPacketRequestResponse import DataPacketRequestResponse
 from NetworkHandler import NetworkHandler
 from PySyntaxHandler import Syntax
 from DataPacketCursorUpdate import DataPacketCursorUpdate
+from DataPacketSaveDump import DataPacketSaveDump
 
 class Window:
     """
@@ -56,6 +57,9 @@ class Window:
         self.net_hand = NetworkHandler(self.parse_message)
         self.cursor_thread_run = True
         self.cursor_thread = Thread(target=self.track_cursor)
+
+        self.autosave_thread = Thread(target=self.autosave)
+
 
         self.log = logging.getLogger('jumpy')
 
@@ -130,6 +134,7 @@ class Window:
         """
         Shows the window.
         """
+        self.autosave_thread.start() #TODO: fix for better placing
         self.root.mainloop()
 
     # TODO for folders with alot of files add a scrollbar, when file is changed clear terminal and change terminal directory (change ">>>" to "[directory path]>")
@@ -373,3 +378,21 @@ class Window:
             # send position of cursor to others
             sleep(1)
 
+
+    def autosave(self):
+        while True:
+            sleep(30)
+            self.log.debug("autosaving...")
+            if self.is_host:
+                p = DataPacketSaveDump()
+                file = None
+                try:
+                    file = self.current_file_name.get().rsplit('/', 1)[1]
+                    
+                except Exception:
+                    print('No file open')
+                p.define_manually(file, self.code.text.get("1.0", END))
+                self.save_file()
+            else:
+                pass
+                

@@ -1,6 +1,7 @@
 import logging
 
-from DataPacket import DataPacket, DataPacketDocumentEdit
+from DataPacket import DataPacket
+from DataPacketDocumentEdit import DataPacketDocumentEdit
 
 
 class DataPacketSaveDump(DataPacket):
