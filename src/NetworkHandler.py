@@ -102,12 +102,12 @@ class NetworkHandler:
         self.log.info('connected')
 
     def mqtt_on_message(self, client, userdata, msg):
-        # self.log.info('received: \'{}\''.format(msg.payload))
-        if self.unit_testing:
-            dp = DataPacket()
-            dp.parse_json(json.loads(msg.payload))
-            print(dp.data_dict)
-            self.unit_testing_received_packet = dp
+        self.log.info('received: \'{}\''.format(msg.payload))
+        # if self.unit_testing:
+        #     dp = DataPacket()
+        #     dp.parse_json(json.loads(msg.payload))
+        #     print(dp.data_dict)
+        #     self.unit_testing_received_packet = dp
         self.parse_message_function(msg.payload)
 
     def mqtt_on_subscribe(self, client, obj, mid, granted_qos):

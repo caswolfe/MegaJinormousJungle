@@ -1,5 +1,6 @@
 import json
 import logging
+import uuid
 from tkinter import *
 from tkinter import filedialog, messagebox
 import os
@@ -53,6 +54,8 @@ class Window:
         self.cursor_thread = Thread(target=self.track_cursor)
 
         self.log = logging.getLogger('jumpy')
+
+        self.mac = hex(uuid.getnode())
 
         self.create()
 
@@ -253,10 +256,12 @@ class Window:
                     self.code.text.tag_add(color, idx, lastidx)
                     idx = lastidx
 
-    def parse_message(self, packet: DataPacket):
-        data_dict = json.loads(packet)
+    def parse_message(self, packet_str: DataPacket):
+        data_dict = json.loads(packet_str)
         packet_name = data_dict.get('packet-name')
-        if data_dict.get('mac-addr') == self.mac and not self.window.net_hand.is_unit_testing:
+        print(packet_name)
+        print(data_dict)
+        if data_dict.get('mac-addr') == self.mac:
             self.log.debug('received packet from self, ignoring...')
         else:
             if packet_name == 'DataPacket':
@@ -264,6 +269,15 @@ class Window:
             elif packet_name == 'DataPacketDocumentEdit':
                 self.log.debug('Received a DataPacketDocumentEdit')
                 self.log.debug(data_dict)
+                text = self.code.text.get("1.0", END)
+                text_hash = DataPacketDocumentEdit.get_text_hash(text)
+                if text_hash == data_dict.get('old_text_hash'):
+                    self.log.debug("YEET")
+                    packet = DataPacketDocumentEdit()
+                    packet.parse_json(packet_str)
+                    self.code.text.insert("1.0", DataPacketDocumentEdit.apply_packet(text, packet))
+                else:
+                    self.log.error("FUCK")
                 # action = Action(int(data_dict.get('action')))
                 # time = data_dict.get('time-of-send')
                 # self.log.debug(time)
