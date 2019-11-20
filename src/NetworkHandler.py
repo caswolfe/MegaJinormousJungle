@@ -1,18 +1,19 @@
 import configparser
+import json
 
 import paho.mqtt.client as mqtt
 import logging
 
-try:
-    from src import DataPacket
-    from src.NetworkActionHandler import NetworkActionHandler
-except ImportError as ie:
-    try:
-        import DataPacket
-        from NetworkActionHandler import NetworkActionHandler
-    except ImportError as ie2:
-        print('cant import???')
-        exit(-1)
+# try:
+#     from src import DataPacket
+#     from src.NetworkActionHandler import NetworkActionHandler
+# except ImportError as ie:
+#     try:
+import DataPacket
+from NetworkActionHandler import NetworkActionHandler
+    # except ImportError as ie2:
+    #     print('cant import???')
+    #     exit(-1)
 
 
 class NetworkHandler:
@@ -43,6 +44,10 @@ class NetworkHandler:
 
         # network action handler setup
         self.nahs = list()
+
+        # used for unit testing
+        self.unit_testing = False
+        self.unit_testing_received_packet = None
 
         # misc
         # self.mac = hex(uuid.getnode())
@@ -75,18 +80,9 @@ class NetworkHandler:
     def close_lobby(self, lobby_name: str):
         pass
 
-    # def open_as_host(self) -> bool:
-    #     """
-    #     Opens connections with this machine as host.
-    #     """
-    #     pass
-    #
-    # def close_as_host(self) -> None:
-    #     """
-    #     Closes all connections with this machine as host.
-    #     :return:
-    #     """
-    #     pass
+    # def open_as_host(self) -> bool:\n    #     """\n    #     Opens connections with this machine as host.\n    #     """\n    #     pass
+
+    # def close_as_host(self) -> None:\n    #     """\n    #     Closes all connections with this machine as host.\n    #     :return:\n    #     """\n    #     pass
 
     def add_network_action_handler(self, nah: NetworkActionHandler) -> bool:
         """
@@ -116,6 +112,11 @@ class NetworkHandler:
 
     def mqtt_on_message(self, client, userdata, msg):
         # self.log.info('received: \'{}\''.format(msg.payload))
+        if self.unit_testing:
+            dp = DataPacket()
+            dp.parse_json(json.loads(msg.payload))
+            print(dp.data_dict)
+            self.unit_testing_received_packet = dp
         for nah in self.nahs:
             nah.parse_message(msg.payload)
 

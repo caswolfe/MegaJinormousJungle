@@ -11,21 +11,20 @@ except ImportError as ie:
         exit(-1)
 
 
-class DataPacketCursorUpdate(DataPacket):
+class DataPacketRequestResponse(DataPacket):
 
     def __init__(self):
         super().__init__()
         self.log = logging.getLogger('jumpy')
 
-        self.document: str = None
-        self.position: int = None
+        self.target_mac: str = None
+        self.can_join: bool = None
 
-    def define_manually(self, document: str, positon: int):
-        self.document = document
-        self.position = positon
-        self.update_data_dict()
+    def define_manually(self, target_mac: str, can_join: bool):
+        self.target_mac = target_mac
+        self.can_join = can_join
 
     def update_data_dict(self) -> None:
         super().update_data_dict()
-        self.data_dict.update({'document': self.document})
-        self.data_dict.update({'position': self.position})
+        self.data_dict.update({'target_mac': self.target_mac})
+        self.data_dict.update({'can_join': self.can_join})
