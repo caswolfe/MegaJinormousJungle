@@ -96,6 +96,7 @@ class Window:
         self.terminal.config(height= 10, borderwidth=5)
 
         # visual packs
+        self.root.geometry("900x600")
         self.top_frame.pack(side="top",fill='both', expand=True)
         self.bottom_frame.pack(side="bottom",fill='both', expand=True)        
         self.files.pack(side="left",fill='both')
