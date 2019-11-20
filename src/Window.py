@@ -8,6 +8,7 @@ try:
     from src.DataPacketDocumentEdit import DataPacketDocumentEdit, Action
     from src.NetworkActionHandler import NetworkActionHandler
     from src.NetworkHandler import NetworkHandler
+    from PySyntaxHandler import Syntax
 except ImportError as ie:
     try:
         # TODO: linux imports 
