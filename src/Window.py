@@ -59,6 +59,7 @@ class Window:
         self.cursor_thread = Thread(target=self.track_cursor)
 
         self.autosave_thread = Thread(target=self.autosave)
+        self.autosave_thread.setDaemon(True)
 
 
         self.log = logging.getLogger('jumpy')
@@ -382,8 +383,8 @@ class Window:
     def autosave(self):
         while True:
             sleep(30)
-            self.log.debug("autosaving...")
             if self.is_host:
+                self.log.debug("autosaving...")
                 p = DataPacketSaveDump()
                 file = None
                 try:
@@ -392,7 +393,7 @@ class Window:
                 except Exception:
                     print('No file open')
                 p.define_manually(file, self.code.text.get("1.0", END))
+                self.net_hand.send_packet(p)
                 self.save_file()
             else:
                 pass
-                
