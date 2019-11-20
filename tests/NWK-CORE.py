@@ -1,7 +1,20 @@
+import json
 import unittest
 import logging
 import sys
+
+from DataPacket import DataPacket
+
 sys.path.append("../src/")
+
+
+class Helper:
+
+    def __init__(self):
+        self.packet_received_data_dict = None
+
+    def parse_message(self, packet_str: DataPacket):
+        self.packet_received_data_dict = json.loads(packet_str)
 
 
 class MyTestCase(unittest.TestCase):
@@ -71,7 +84,7 @@ class MyTestCase(unittest.TestCase):
         """
         Tests a DataPacket
         """
-    
+
         # basic logging init
         log = logging.getLogger('jumpy')
         log_format = logging.Formatter('%(filename)s - %(lineno)d - %(levelname)s - %(message)s')
@@ -87,9 +100,11 @@ class MyTestCase(unittest.TestCase):
         from DataPacket import DataPacket
         from NetworkHandler import NetworkHandler
         import time
-    
+
+        helper = Helper()
+
         # base setup
-        net_hand = NetworkHandler()
+        net_hand = NetworkHandler(helper.parse_message)
         net_hand.establish_connection()
     
         time.sleep(1)
@@ -111,9 +126,9 @@ class MyTestCase(unittest.TestCase):
         assert packet.data_dict.get('time-of-send') is not None
     
         net_hand.send_packet(packet)
-        time.sleep(1)
+        time.sleep(3)
         net_hand.close_connection()
-        assert net_hand.unit_testing_received_packet is not None
+        assert helper.packet_received_data_dict is not None
         pass
 
     # @staticmethod
@@ -130,51 +145,51 @@ class MyTestCase(unittest.TestCase):
     #     """
     #     assert 1 == 1
 
-    @staticmethod
-    def test_NWK_13():
-        """
-        Tests a DataPacketDocumentEdit
-        """
-    
-        # basic logging init
-        log = logging.getLogger('jumpy')
-        log_format = logging.Formatter('%(filename)s - %(lineno)d - %(levelname)s - %(message)s')
-        log.setLevel(logging.DEBUG)
-    
-        # logging console init
-        log_handler_console = logging.StreamHandler()
-        log_handler_console.setLevel(logging.DEBUG)
-        log_handler_console.setFormatter(log_format)
-        log.addHandler(log_handler_console)
-    
-        # imports needed for this test
-        from DataPacketDocumentEdit import DataPacketDocumentEdit, Action
-    
-        # test a single character change
-        old_text: str = "this is a tes"
-        new_text: str = "this is a test"
-        packet: DataPacketDocumentEdit = DataPacketDocumentEdit.generate_first_change_packet(old_text, new_text, 'test_doc')
-        assert packet.check_hash(old_text)
-        assert packet.action == Action.ADD
-        assert packet.position == 13
-        assert packet.character == 't'
-    
-        # test the application of a packet to a string
-        applied_text: str = DataPacketDocumentEdit.apply_packet(old_text, packet)
-        assert applied_text == new_text
-    
-        # test JSON loading and unloading
-        packet_json = packet.get_json()
-        packet_json_loaded = DataPacketDocumentEdit('test_doc')
-        packet_json_loaded.parse_json(packet_json)
-        assert packet.__eq__(packet_json_loaded)
-    
-        # test a multiple character change
-        old_text: str = "this is a"
-        new_text: str = "this is a test"
-        packets: list[DataPacketDocumentEdit] = DataPacketDocumentEdit.generate_packets_from_changes(old_text, new_text, 'test_doc')
-        applied_text = DataPacketDocumentEdit.apply_multiple_packets(old_text, packets)
-        assert applied_text == new_text
+    # @staticmethod
+    # def test_NWK_13():
+    #     """
+    #     Tests a DataPacketDocumentEdit
+    #     """
+    #
+    #     # basic logging init
+    #     log = logging.getLogger('jumpy')
+    #     log_format = logging.Formatter('%(filename)s - %(lineno)d - %(levelname)s - %(message)s')
+    #     log.setLevel(logging.DEBUG)
+    #
+    #     # logging console init
+    #     log_handler_console = logging.StreamHandler()
+    #     log_handler_console.setLevel(logging.DEBUG)
+    #     log_handler_console.setFormatter(log_format)
+    #     log.addHandler(log_handler_console)
+    #
+    #     # imports needed for this test
+    #     from DataPacketDocumentEdit import DataPacketDocumentEdit, Action
+    #
+    #     # test a single character change
+    #     old_text: str = "this is a tes"
+    #     new_text: str = "this is a test"
+    #     packet: DataPacketDocumentEdit = DataPacketDocumentEdit.generate_first_change_packet(old_text, new_text, 'test_doc')
+    #     assert packet.check_hash(old_text)
+    #     assert packet.action == Action.ADD
+    #     assert packet.position == 13
+    #     assert packet.character == 't'
+    #
+    #     # test the application of a packet to a string
+    #     applied_text: str = DataPacketDocumentEdit.apply_packet(old_text, packet)
+    #     assert applied_text == new_text
+    #
+    #     # test JSON loading and unloading
+    #     packet_json = packet.get_json()
+    #     packet_json_loaded = DataPacketDocumentEdit('test_doc')
+    #     packet_json_loaded.parse_json(packet_json)
+    #     assert packet.__eq__(packet_json_loaded)
+    #
+    #     # test a multiple character change
+    #     old_text: str = "this is a"
+    #     new_text: str = "this is a test"
+    #     packets: list[DataPacketDocumentEdit] = DataPacketDocumentEdit.generate_packets_from_changes(old_text, new_text, 'test_doc')
+    #     applied_text = DataPacketDocumentEdit.apply_multiple_packets(old_text, packets)
+    #     assert applied_text == new_text
 
     # # @staticmethod
     # # def test_NWK_14():
