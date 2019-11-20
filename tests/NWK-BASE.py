@@ -67,7 +67,7 @@ class MQTTHelper:
 class MyTestCase(unittest.TestCase):
 
     @staticmethod
-    def test_NWK_1():
+    def test_NWK_01():
         """
         Tests paho-mqtt importing
         """
@@ -80,7 +80,7 @@ class MyTestCase(unittest.TestCase):
         assert not error
 
     @staticmethod
-    def test_NWK_2():
+    def test_NWK_02():
         """
         Tests connecting to an MQTT server with paho-mqtt
         """
@@ -110,7 +110,7 @@ class MyTestCase(unittest.TestCase):
         client.disconnect()
 
     @staticmethod
-    def test_NWK_3():
+    def test_NWK_03():
         """
         Tests subscribing to a topic on a MQTT server with paho-mqtt
         """
@@ -141,7 +141,7 @@ class MyTestCase(unittest.TestCase):
         client.disconnect()
 
     @staticmethod
-    def test_NWK_4():
+    def test_NWK_04():
         """
         Tests publishing to a topic on a MQTT server with paho-mqtt
         """
@@ -172,21 +172,21 @@ class MyTestCase(unittest.TestCase):
         client.disconnect()
 
     # @staticmethod
-    # def test_NWK_5():
+    # def test_NWK_05():
     #     """
     #     Tests receiving a message from a MQTT server with paho-mqtt
     #     """
     #     assert 1 == 1
 
     # @staticmethod
-    # def test_NWK_6():
+    # def test_NWK_06():
     #     """
     #     Tests unsubscribing from a topic on a MQTT server with paho-mqtt
     #     """
     #     assert 1 == 1
 
     # @staticmethod
-    # def test_NWK_7():
+    # def test_NWK_07():
     #     """
     #     Tests leaving (disconnecting) from a MQTT server with paho-mqtt
     #     """
