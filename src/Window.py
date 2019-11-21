@@ -40,18 +40,23 @@ class Window:
     bottom_frame = Frame(root)
     files = Frame(top_frame)
 
+    location = Frame(files)
+    directory = Label(location)
+    back = Button(location)
+
     # functional frames
     code = CodeFrame(top_frame)
     terminal = Text(bottom_frame)
-    radio_frame = Scrollbar(files, orient="vertical")
+    radio_frame = Frame(files)
 
     # other variables
     current_directory = None
-    current_terminal_buffer_column = 0
-    current_terminal_buffer_line = 0
     current_file_name = StringVar()
     current_file = None
     old_text = ""
+
+    current_terminal_buffer_column = 0
+    current_terminal_buffer_line = 0
 
     def __init__(self):
 
@@ -123,15 +128,24 @@ class Window:
         #  text default
         self.old_text = self.code.text.get("1.0", END)
 
+        self.directory.config(width=20,text="Current Folder:\nNone")
+        self.back.config(text="cd ..\\",command=self.previous_dir)
+
         # visual effects
         self.files.config(width=100, bg='light grey')
         self.terminal.config(height= 10, borderwidth=5)
 
         # visual packs
         self.root.geometry("900x600")
+
         self.top_frame.pack(side="top",fill='both', expand=True)
-        self.bottom_frame.pack(side="bottom",fill='both', expand=True)        
+        self.bottom_frame.pack(side="bottom",fill='both', expand=True) 
+
         self.files.pack(side="left",fill='both')
+        self.location.pack(side="top",fill='x')
+        self.directory.pack(side="left",fill='x', expand=True)
+        self.back.pack(side="right",fill='x',expand=True)
+       
         self.code.pack(side="right",fill='both', expand=True)
         self.terminal.pack(fill='both', expand=True)
 
@@ -143,21 +157,36 @@ class Window:
         self.cursor_thread.start()
         self.root.mainloop()
         
+    def previous_dir(self):
+        if self.current_directory != "C:/" and self.current_directory:
+            split = self.current_directory.split("/")
+            new_dir = "/".join(split[0:-1])
+            if(new_dir == "C:"):
+                new_dir += "/"
+            self.open_folder(new_dir)
 
     # TODO for folders with alot of files add a scrollbar
-    def open_folder(self):
-        location = filedialog.askdirectory()
+    def open_folder(self, folder=None):
+        location = ""
+        if folder:
+            location = folder
+        else:
+            location = filedialog.askdirectory()
 
         if location != "":
             self.current_directory = location
-            #clear text and delete current radio buttons
-
+            split = location.split("/")
+            index = -1
+            folder_name = split[index]
+            while folder_name == "":
+                index -= 1
+                folder_name = split[index]
+            self.directory.config(text="Current Folder:\n" + folder_name)
             # clear text and delete current radio buttons
             self.code.text.delete("1.0", END)
             self.radio_frame.destroy()
-            self.radio_frame = Scrollbar(self.files, orient="vertical")
-            self.radio_frame.pack()
-
+            self.radio_frame = Frame(self.files, border=5, bg="dark grey")
+            self.radio_frame.pack(side="bottom",fill="both", expand=True)
             folder = os.listdir(location)
             for item in folder:
                 item_path = location+ "/" + item 
@@ -169,8 +198,6 @@ class Window:
             # starts cursor tracking thread
             # TODO: uncomment
             
-
-    # TODO add functionality to clicking on folders (change current folder to that folder, have a back button to go to original folder)
     def open_item(self):
         if os.path.isfile(self.current_file_name.get()):
             self.code.text.delete("1.0", END)
@@ -184,7 +211,9 @@ class Window:
                 self.code.text.insert(1.0,"Can not interperate this file")
             file.close()
         else:
-            pass
+            self.open_folder(self.current_file_name.get())
+            name = self.current_file_name.get().split("/")[-1]
+            self.directory.config(text="Current Folder:\n" + name)
 
     def save_file(self) -> None:
         f = filedialog.asksaveasfilename(defaultextension=".py")
