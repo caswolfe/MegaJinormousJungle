@@ -6,6 +6,7 @@ from tkinter import filedialog, messagebox , simpledialog
 import os
 from threading import Thread
 from time import sleep
+import subprocess
 
 
 from CodeFrame import CodeFrame
@@ -59,7 +60,6 @@ class Window:
     current_terminal_buffer_line = 0
 
     def __init__(self):
-
         self.net_hand = NetworkHandler(self.parse_message)
         self.cursor_thread_run = True
         self.cursor_thread = Thread(target=self.track_cursor)
@@ -175,7 +175,7 @@ class Window:
 
         if location != "":
             self.current_directory = location
-            split = location.split("/")
+            split = str(location).split("/")
             index = -1
             folder_name = split[index]
             while folder_name == "":
@@ -274,8 +274,37 @@ class Window:
         if event.widget == self.terminal:
             cursor_line, cursor_column = [int(x) for x in self.terminal.index(INSERT).split('.')]
             # handle terminal event
-            #TODO pipe command to terminal, update buffer_column when pip output from terminal 
+            #TODO pipe command to terminal, update buffer_column when pip output from terminal,MOVE CURSOR WHEN TERMINAL OUTPUTS STUFF, TEST THAT THESE ARE DONE RIGHT
             if event.char == '\r':
+                command = self.terminal.get(str(self.current_terminal_buffer_line) + "." + str(self.current_terminal_buffer_column),END).strip("\n ").split(" ")
+
+                if self.current_directory:
+                    os.chdir(self.current_directory)
+                if "cd" in command:
+                    if len(command) >= 2:
+                        try:
+                            os.chdir(self.current_directory + "/" + " ".join(command[1::]).strip('\'\"'))
+                            self.current_directory = os.getcwd().replace("\\","/")
+                            self.open_folder(self.current_directory)
+                            return
+                        except:
+                            self.current_terminal_buffer_line += 1
+                            self.terminal.insert(END,"'" + " ".join(command[1::]).strip('\'\"') + "' does not exist as a subdirectory directory\n")
+                    else:
+                        os.chdir("C:/")
+                        self.current_directory = os.getcwd()
+                        self.open_folder("C:/")
+                        return
+                else:
+                    output = subprocess.run(command, capture_output=True)
+                    enter = ""
+                    if str(output.stdout)[2:-1] != "":
+                        enter = output.stdout
+                    else:
+                        enter = output.stderr
+                    self.current_terminal_buffer_line += (str(enter)[2:-1].count("\\n") + 1)
+                    self.terminal.insert(END,enter)
+
                 if self.current_directory:
                     self.terminal.insert(END,self.current_directory + ">")
                     self.current_terminal_buffer_column = len(self.current_directory) + 1
@@ -290,7 +319,7 @@ class Window:
                 elif event.char == '\x08':
                     self.terminal.insert(END, ">")
             if cursor_line < self.current_terminal_buffer_line:
-                    self.terminal.mark_set("insert", "%d.%d" % (cursor_line + 1, self.current_terminal_buffer_column))
+                self.terminal.mark_set("insert", "%d.%d" % (cursor_line + 1, self.current_terminal_buffer_column))
         elif event.widget == self.code.text:
             # handle text event
             if self.net_hand.is_connected:
