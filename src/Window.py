@@ -85,6 +85,7 @@ class Window:
 
         self.root.title("jum.py")
         self.root.bind('<Key>',self.handle_event)
+        self.root.bind('<Button-1>',self.handle_event)
 
         # menu bar
         self.menu_bar.add_cascade(label='File', menu=self.menu_file)
@@ -274,52 +275,55 @@ class Window:
         if event.widget == self.terminal:
             cursor_line, cursor_column = [int(x) for x in self.terminal.index(INSERT).split('.')]
             # handle terminal event
-            #TODO pipe command to terminal, update buffer_column when pip output from terminal,MOVE CURSOR WHEN TERMINAL OUTPUTS STUFF, TEST THAT THESE ARE DONE RIGHT
+            #TODO pipe command to terminal (needs to be on different thread so that opening new process does not freeze the orniginal process)
+
             if event.char == '\r':
                 command = self.terminal.get(str(self.current_terminal_buffer_line) + "." + str(self.current_terminal_buffer_column),END).strip("\n ").split(" ")
-
-                if self.current_directory:
-                    os.chdir(self.current_directory)
-                if "cd" in command:
-                    if len(command) >= 2:
-                        try:
-                            os.chdir(self.current_directory + "/" + " ".join(command[1::]).strip('\'\"'))
-                            self.current_directory = os.getcwd().replace("\\","/")
-                            self.open_folder(self.current_directory)
-                            return
-                        except:
-                            self.current_terminal_buffer_line += 1
-                            self.terminal.insert(END,"'" + " ".join(command[1::]).strip('\'\"') + "' does not exist as a subdirectory directory\n")
+                print(command)
+                if command[0] != "":
+                    if self.current_directory:
+                        os.chdir(self.current_directory)
+                        if "cd" in command:
+                            if len(command) >= 2:
+                                try:
+                                    os.chdir(self.current_directory + "/" + " ".join(command[1::]).strip('\'\"'))
+                                    self.current_directory = os.getcwd().replace("\\","/")
+                                    self.open_folder(self.current_directory)
+                                    return
+                                except:
+                                    self.current_terminal_buffer_line += 1
+                                    self.terminal.insert(END,"'" + " ".join(command[1::]).strip('\'\"') + "' does not exist as a subdirectory\n")
+                            else:
+                                os.chdir("C:/")
+                                self.current_directory = os.getcwd()
+                                self.open_folder("C:/")
+                                return
+                        else:
+                            output = subprocess.run(command, capture_output=True)
+                            enter = ""
+                            if len(str(output.stdout)[2:-1]) != 0:
+                                enter = output.stdout
+                            else:
+                                enter = output.stderr
+                            self.current_terminal_buffer_line += (str(enter)[2:-1].count("\\n") + 1)
+                            self.terminal.insert(END,enter + bytes("\n", 'utf-8'))
                     else:
-                        os.chdir("C:/")
-                        self.current_directory = os.getcwd()
-                        self.open_folder("C:/")
-                        return
-                else:
-                    output = subprocess.run(command, capture_output=True)
-                    enter = ""
-                    if str(output.stdout)[2:-1] != "":
-                        enter = output.stdout
-                    else:
-                        enter = output.stderr
-                    self.current_terminal_buffer_line += (str(enter)[2:-1].count("\\n") + 1)
-                    self.terminal.insert(END,enter)
+                        self.terminal.insert(END, "Open a directory before using the console.\n")
 
                 if self.current_directory:
                     self.terminal.insert(END,self.current_directory + ">")
                     self.current_terminal_buffer_column = len(self.current_directory) + 1
                 else:
                     self.terminal.insert(END,">>>")
+                self.terminal.see(END)
                 self.current_terminal_buffer_line += 1
+                return
             if event.char == '\x03':
                 self.reset_terminal()
-            if cursor_column < self.current_terminal_buffer_column:
-                if event.keycode == 37:
-                    self.terminal.mark_set("insert", "%d.%d" % (self.current_terminal_buffer_line, cursor_column + 1))
-                elif event.char == '\x08':
-                    self.terminal.insert(END, ">")
-            if cursor_line < self.current_terminal_buffer_line:
-                self.terminal.mark_set("insert", "%d.%d" % (cursor_line + 1, self.current_terminal_buffer_column))
+            if cursor_column < self.current_terminal_buffer_column or cursor_line < self.current_terminal_buffer_line:
+                if event.char == '\x08':
+                    self.terminal.insert(END,">")
+                self.terminal.mark_set("insert", "%d.%d" % (self.current_terminal_buffer_line, self.current_terminal_buffer_column))
         elif event.widget == self.code.text:
             # handle text event
             if self.net_hand.is_connected:
@@ -374,8 +378,8 @@ class Window:
                     idx = lastidx
 
     def reset_terminal(self):
-        self.terminal.delete("2.0",END)
-        self.terminal.insert(END,"\n")
+        self.terminal.delete("1.0",END)
+        self.terminal.insert(END,"Console:\n")
         if self.current_directory:
             self.terminal.insert(END,self.current_directory + ">")
             self.current_terminal_buffer_column = len(self.current_directory) + 1
