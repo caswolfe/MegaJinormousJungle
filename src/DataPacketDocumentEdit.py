@@ -70,7 +70,8 @@ class DataPacketDocumentEdit(DataPacket):
         :return: a single DataPacketDocumentEdit with the first detected change
         """
 
-        old_text_hash = hashlib.sha1(old_text.encode()).hexdigest()
+        # old_text_hash = hashlib.sha1(old_text.encode()).hexdigest()
+        old_text_hash = old_text
         to_ret_packet: DataPacketDocumentEdit = DataPacketDocumentEdit(document)
         for i, s in enumerate(difflib.ndiff(old_text, new_text)):
             if s[0] == ' ':
