@@ -381,6 +381,7 @@ class Window:
                 if can_join:
                     self.log.debug('allowed into the lobby')
                     self.have_perms = True
+                    self.workspace.create_temp_workspace()
                     messagebox.showinfo("jumpy", "You have been accepted into the lobby!")
                 else:
                     self.log.debug('rejected from the lobby')

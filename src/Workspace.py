@@ -45,6 +45,7 @@ class Workspace:
         file = open(self.directory + '/' + document, 'w')
         file.write(text)
         file.close()
+        self.log.debug('Saved to \'{}\''.format(self.directory + "/" + document))
 
     def get_save_dump(self) -> list():
         packets = list()
