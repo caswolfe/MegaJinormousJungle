@@ -7,7 +7,7 @@ import os
 from threading import Thread
 from time import sleep
 import subprocess
-
+from FilesFrame import FilesFrame
 
 from CodeFrame import CodeFrame
 from DataPacket import DataPacket
@@ -43,13 +43,13 @@ class Window:
     files = Frame(top_frame)
 
     location = Frame(files)
+    radio_frame = Frame(files)
     directory = Label(location)
     back = Button(location)
 
     # functional frames
     code = CodeFrame(top_frame)
     terminal = Text(bottom_frame)
-    radio_frame = Frame(files)
 
     # other variables
     current_directory = None
@@ -134,7 +134,7 @@ class Window:
         self.back.config(text="cd ..\\",command=self.previous_dir)
 
         # visual effects
-        self.files.config(width=100, bg='light grey')
+        self.files.config(width=200, bg='light grey')
         self.terminal.config(height= 10, borderwidth=5)
 
         # visual packs
@@ -187,14 +187,10 @@ class Window:
             # clear text and delete current radio buttons
             self.code.text.delete("1.0", END)
             self.radio_frame.destroy()
-            self.radio_frame = Frame(self.files, border=5, bg="dark grey")
-            self.radio_frame.pack(side="bottom",fill="both", expand=True)
-            folder = os.listdir(location)
-            for item in folder:
-                item_path = location+ "/" + item 
-                # condition so that folders that start with "." are not displayed
-                if os.path.isfile(item_path) or not item.startswith("."):
-                    Radiobutton(self.radio_frame, text = item, variable=self.current_file_name, command=self.open_item, value=item_path, indicator=0).pack(fill = 'x', ipady = 0)
+            self.radio_frame = Frame(self.files,width=self.files.cget("width"))
+            self.radio_frame.pack(fill="both",expand=True)
+            self.options = FilesFrame(self.radio_frame,window = self)
+            self.options.populate(location)
             self.reset_terminal()
 
             # starts cursor tracking thread
