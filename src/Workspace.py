@@ -42,7 +42,7 @@ class Workspace:
         document: str = packet.data_dict.get('document')
         text: str = packet.data_dict.get('text')
 
-        file = open(self.directory + '/' + document, 'w')
+        file = open(self.directory + '/' + document, 'w+')
         file.write(text)
         file.close()
         self.log.debug('Saved to \'{}\''.format(self.directory + "/" + document))
