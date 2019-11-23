@@ -421,6 +421,11 @@ class Window:
                     self.log.debug('new file added, updating radio buttons')
                     self.workspace.new_file_added = False
                     self.update_workspace_radio_buttons()
+
+            elif packet_name == 'DataPacketSaveRequest':
+                to_send = self.workspace.get_save_dump_from_document(data_dict.get('document'))
+                self.net_hand.send_packet(to_send)
+
             else:
                 self.log.warning('Unknown packet type: \'{}\''.format(packet_name))
                 return False
