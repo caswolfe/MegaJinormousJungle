@@ -13,6 +13,7 @@ from DataPacket import DataPacket
 from DataPacketDocumentEdit import DataPacketDocumentEdit, Action
 from DataPacketRequestJoin import DataPacketRequestJoin
 from DataPacketRequestResponse import DataPacketRequestResponse
+from DataPacketSaveRequest import DataPacketSaveRequest
 from NetworkHandler import NetworkHandler
 from PySyntaxHandler import Syntax
 from DataPacketCursorUpdate import DataPacketCursorUpdate
@@ -355,19 +356,32 @@ class Window:
                 self.log.debug('Received a DataPacket')
 
             elif packet_name == 'DataPacketDocumentEdit':
+                packet = DataPacketDocumentEdit()
+                packet.parse_json(packet_str)
                 self.log.debug('Received a DataPacketDocumentEdit')
                 self.log.debug(data_dict)
-                text = self.code.text.get("1.0", END)
-                text_hash = DataPacketDocumentEdit.get_text_hash(text)
-                if text_hash == data_dict.get('old_text_hash'):
-                    self.log.debug("YEET")
-                    self.log.debug("Old Text: \'{}\"".format(text))
-                    self.code.text.delete("1.0", END)
-                    self.code.text.insert("1.0", DataPacketDocumentEdit.apply_packet_data_dict(data_dict.get('old_text_hash'), data_dict.get('action'), data_dict.get('position'), data_dict.get('character'), text_hash, text))
-                    self.code.text.delete('end-1c', 'end')
-                    self.log.debug("New Text: \'{}\"".format(self.code.text.get("1.0", END)))
-                else:
-                    self.log.error("FUCK")
+                result = self.workspace.apply_data_packet_document_edit(packet)
+                if not result:
+                    self.log.error('hash missmatch')
+                    if self.is_host:
+                        to_send = self.workspace.get_save_dump_from_document(packet.data_dict.get('document'))
+                        self.net_hand.send_packet(to_send)
+                    else:
+                        to_send = DataPacketSaveRequest()
+                        to_send.define_manually(packet.data_dict.get('document'))
+                        self.net_hand.send_packet(to_send)
+
+                # text = self.code.text.get("1.0", END)
+                # text_hash = DataPacketDocumentEdit.get_text_hash(text)
+                # if text_hash == data_dict.get('old_text_hash'):
+                #     self.log.debug("YEET")
+                #     self.log.debug("Old Text: \'{}\"".format(text))
+                #     self.code.text.delete("1.0", END)
+                #     self.code.text.insert("1.0", DataPacketDocumentEdit.apply_packet_data_dict(data_dict.get('old_text_hash'), data_dict.get('action'), data_dict.get('position'), data_dict.get('character'), text_hash, text))
+                #     self.code.text.delete('end-1c', 'end')
+                #     self.log.debug("New Text: \'{}\"".format(self.code.text.get("1.0", END)))
+                # else:
+                #     self.log.error("FUCK")
 
             elif packet_name == 'DataPacketRequestJoin':
                 if self.is_host:
