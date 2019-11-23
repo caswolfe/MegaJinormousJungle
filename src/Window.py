@@ -348,6 +348,7 @@ class Window:
     def parse_message(self, packet_str: DataPacket):
         data_dict = json.loads(packet_str)
         packet_name = data_dict.get('packet-name')
+        print(data_dict)
         if data_dict.get('mac-addr') == self.mac:
             self.log.debug('received packet from self, ignoring...')
         else:
