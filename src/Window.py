@@ -165,13 +165,7 @@ class Window:
 
             # clear text and delete current radio buttons
             self.code.text.delete("1.0", END)
-            self.radio_frame.destroy()
-            self.radio_frame = Scrollbar(self.files, orient="vertical")
-            self.radio_frame.pack()
-
-            for item in self.workspace.files:
-                item_path = self.workspace.directory + "/" + item
-                Radiobutton(self.radio_frame, text=item, variable=self.current_file_name, command=self.open_item, value=item_path, indicator=0).pack(fill='x', ipady=0)
+            self.update_workspace_radio_buttons()
 
             # folder = os.listdir(location)
             # for item in folder:
@@ -183,6 +177,16 @@ class Window:
 
             # starts cursor tracking thread
             # TODO: uncomment
+
+    def update_workspace_radio_buttons(self):
+        self.radio_frame.destroy()
+        self.radio_frame = Scrollbar(self.files, orient="vertical")
+        self.radio_frame.pack()
+
+        for item in self.workspace.files:
+            item_path = self.workspace.directory + "/" + item
+            self.log.debug('adding \'{}\' radio button...'.format(item_path))
+            Radiobutton(self.radio_frame, text=item, variable=self.current_file_name, command=self.open_item, value=item_path, indicator=0).pack(fill='x', ipady=0)
 
     # TODO add functionality to clicking on folders (change current folder to that folder, have a back button to go to original folder) (chad doesn't think this is needed anymore)
     def open_item(self):
@@ -346,6 +350,7 @@ class Window:
         if data_dict.get('mac-addr') == self.mac:
             self.log.debug('received packet from self, ignoring...')
         else:
+            self.log.debug('Received a \'{}\''.format(packet_name))
             if packet_name == 'DataPacket':
                 self.log.debug('Received a DataPacket')
 
@@ -378,10 +383,11 @@ class Window:
             elif packet_name == 'DataPacketRequestResponse':
                 self.log.debug('Received a DataPacketRequestResponse')
                 can_join = data_dict.get('can_join')
+
                 if can_join:
                     self.log.debug('allowed into the lobby')
+                    self.workspace.use_temp_workspace()
                     self.have_perms = True
-                    self.workspace.create_temp_workspace()
                     messagebox.showinfo("jumpy", "You have been accepted into the lobby!")
                 else:
                     self.log.debug('rejected from the lobby')
@@ -396,6 +402,10 @@ class Window:
                 packet = DataPacketSaveDump()
                 packet.parse_json(packet_str)
                 self.workspace.apply_data_packet_save_dump(packet)
+                if self.workspace.new_file_added:
+                    self.log.debug('new file added, updating radio buttons')
+                    self.workspace.new_file_added = False
+                    self.update_workspace_radio_buttons()
             else:
                 self.log.warning('Unknown packet type: \'{}\''.format(packet_name))
                 return False
