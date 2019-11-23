@@ -17,6 +17,8 @@ from NetworkHandler import NetworkHandler
 from PySyntaxHandler import Syntax
 from DataPacketCursorUpdate import DataPacketCursorUpdate
 from DataPacketSaveDump import DataPacketSaveDump
+from Workspace import Workspace
+
 
 class Window:
     """
@@ -53,6 +55,9 @@ class Window:
     current_file = None
     old_text = ""
 
+    # the workspace used by the program
+    workspace: Workspace = None
+
     def __init__(self):
 
         self.net_hand = NetworkHandler(self.parse_message)
@@ -61,7 +66,7 @@ class Window:
         self.cursor_thread.setDaemon(True)
         self.u2_pos = None
 
-        self.autosave_thread = Thread(target=self.autosave)
+        self.autosave_thread = Thread(target=self.autosave_thread)
         self.autosave_thread.setDaemon(True)
 
 
@@ -70,6 +75,8 @@ class Window:
         self.mac = hex(uuid.getnode())
         self.is_host = False
         self.have_perms = False
+
+        self.workspace = Workspace()
 
         self.create()
 
@@ -90,14 +97,17 @@ class Window:
         self.menu_file.add_command(label="Save", command=self.save_file)
 
         # connections sub-menu
-       # self.menu_connections.add_command(label='Connect', command=self.net_hand.establish_connection)
+        # self.menu_connections.add_command(label='Connect', command=self.net_hand.establish_connection)
 
         def create():
-            val = simpledialog.askstring("Lobby name", "Please name your lobby")
-            self.net_hand.join_lobby(val)
-            self.is_host = True
-            self.have_perms = True
-            self.net_hand.establish_connection()
+            if self.workspace.is_active:
+                val = simpledialog.askstring("Lobby name", "Please name your lobby")
+                self.net_hand.join_lobby(val)
+                self.is_host = True
+                self.have_perms = True
+                self.net_hand.establish_connection()
+            else:
+                messagebox.showerror("jumpy", "no active workspace")
 
         def join():
             val = simpledialog.askstring("Lobby name", "Please input the lobby you want to join.")
@@ -139,10 +149,9 @@ class Window:
         """
         Shows the window.
         """
-        self.autosave_thread.start() #TODO: fix for better placing
+        self.autosave_thread.start() # TODO: fix for better placing
         self.cursor_thread.start()
         self.root.mainloop()
-        
 
     # TODO for folders with alot of files add a scrollbar
     def open_folder(self):
@@ -152,25 +161,30 @@ class Window:
             self.current_directory = location
             #clear text and delete current radio buttons
 
+            self.workspace.open_directory(location)
+
             # clear text and delete current radio buttons
             self.code.text.delete("1.0", END)
             self.radio_frame.destroy()
             self.radio_frame = Scrollbar(self.files, orient="vertical")
             self.radio_frame.pack()
 
-            folder = os.listdir(location)
-            for item in folder:
-                item_path = location+ "/" + item 
-                # condition so that folders that start with "." are not displayed
-                if os.path.isfile(item_path) or not item.startswith("."):
-                    Radiobutton(self.radio_frame, text = item, variable=self.current_file_name, command=self.open_item, value=item_path, indicator=0).pack(fill = 'x', ipady = 0)
+            for item in self.workspace.files:
+                item_path = self.workspace.directory + "/" + item
+                Radiobutton(self.radio_frame, text=item, variable=self.current_file_name, command=self.open_item, value=item_path, indicator=0).pack(fill='x', ipady=0)
+
+            # folder = os.listdir(location)
+            # for item in folder:
+            #     item_path = location+ "/" + item
+            #     # condition so that folders that start with "." are not displayed
+            #     if os.path.isfile(item_path) or not item.startswith("."):
+            #         Radiobutton(self.radio_frame, text = item, variable=self.current_file_name, command=self.open_item, value=item_path, indicator=0).pack(fill = 'x', ipady = 0)
             self.reset_terminal()
 
             # starts cursor tracking thread
             # TODO: uncomment
-            
 
-    # TODO add functionality to clicking on folders (change current folder to that folder, have a back button to go to original folder)
+    # TODO add functionality to clicking on folders (change current folder to that folder, have a back button to go to original folder) (chad doesn't think this is needed anymore)
     def open_item(self):
         if os.path.isfile(self.current_file_name.get()):
             self.code.text.delete("1.0", END)
@@ -329,13 +343,12 @@ class Window:
     def parse_message(self, packet_str: DataPacket):
         data_dict = json.loads(packet_str)
         packet_name = data_dict.get('packet-name')
-        print(packet_name)
-        print(data_dict)
         if data_dict.get('mac-addr') == self.mac:
             self.log.debug('received packet from self, ignoring...')
         else:
             if packet_name == 'DataPacket':
                 self.log.debug('Received a DataPacket')
+
             elif packet_name == 'DataPacketDocumentEdit':
                 self.log.debug('Received a DataPacketDocumentEdit')
                 self.log.debug(data_dict)
@@ -350,12 +363,18 @@ class Window:
                     self.log.debug("New Text: \'{}\"".format(self.code.text.get("1.0", END)))
                 else:
                     self.log.error("FUCK")
+
             elif packet_name == 'DataPacketRequestJoin':
                 if self.is_host:
                     result = messagebox.askyesno("jumpy request", "Allow \'{}\' to join the lobby?".format(data_dict.get('mac-addr')))
                     dprr = DataPacketRequestResponse()
                     dprr.define_manually(data_dict.get('mac_addr'), result)
                     self.net_hand.send_packet(dprr)
+                    if result:
+                        to_send = self.workspace.get_save_dump()
+                        for packet in to_send:
+                            self.net_hand.send_packet(packet)
+
             elif packet_name == 'DataPacketRequestResponse':
                 self.log.debug('Received a DataPacketRequestResponse')
                 can_join = data_dict.get('can_join')
@@ -368,8 +387,10 @@ class Window:
                     self.have_perms = False
                     messagebox.showerror("jumpy", "You have NOT been accepted into the lobby...")
                     self.net_hand.close_connection()
+
             elif packet_name == 'DataPacketCursorUpdate':
                 self.u2_pos = data_dict.get('position')
+
             else:
                 self.log.warning('Unknown packet type: \'{}\''.format(packet_name))
                 return False
@@ -415,24 +436,28 @@ class Window:
             #if self.u2_pos is not None:
             #    self.code.text.tag_remove("c1",pos2, end_pos2)
 
-
-
-
-    def autosave(self):
+    def autosave_thread(self):
         while True:
-            sleep(30)
+            sleep(10)
             if self.is_host:
                 self.log.debug("autosaving...")
-                p = DataPacketSaveDump()
-                file = None
-                try:
-                    file = self.current_file_name.get().rsplit('/', 1)[1]
-                    
-                except Exception:
-                    print('No file open')
-                p.define_manually(file, self.code.text.get("1.0", END))
-                self.net_hand.send_packet(p)
-                # TODO: implement
-                # self.save_file()
+                self.autosave()
+                # p = DataPacketSaveDump()
+                # file = None
+                # try:
+                #     file = self.current_file_name.get().rsplit('/', 1)[1]
+                #
+                # except Exception:
+                #     print('No file open')
+                # p.define_manually(file, self.code.text.get("1.0", END))
+                # self.net_hand.send_packet(p)
+                # # TODO: implement
+                # # self.save_file()
             else:
                 pass
+
+    def autosave(self):
+        if self.is_host:
+            to_send = self.workspace.get_save_dump()
+            for packet in to_send:
+                self.net_hand.send_packet(packet)

@@ -95,7 +95,8 @@ class NetworkHandler:
         """
         if isinstance(packet, DataPacket.DataPacket):
             packet.set_time_of_send()
-            self.log.debug('sending: {}'.format(packet.get_json()))
+            self.log.debug('sending: {}'.format(packet.data_dict.get('packet-name')))
+            # self.log.debug('sending: {}'.format(packet.get_json()))
             self.mc.publish(self.TOPIC, packet.get_json())
         else:
             self.mc.publish(self.TOPIC, packet)
