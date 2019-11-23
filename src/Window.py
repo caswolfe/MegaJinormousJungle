@@ -18,6 +18,7 @@ from NetworkHandler import NetworkHandler
 from PySyntaxHandler import Syntax
 from DataPacketCursorUpdate import DataPacketCursorUpdate
 from DataPacketSaveDump import DataPacketSaveDump
+import shlex
 
 class Window:
     """
@@ -273,9 +274,9 @@ class Window:
         # self.syntax_highlighting()
         # self.old_text = self.code.text.get("1.0", END)
         if event.widget == self.terminal:
-            cursor_line, cursor_column = [int(x) for x in self.terminal.index(INSERT).split('.')]
             # handle terminal event
-            #TODO pipe command to terminal (needs to be on different thread so that opening new process does not freeze the orniginal process)
+            
+            cursor_line, cursor_column = [int(x) for x in self.terminal.index(INSERT).split('.')]
 
             if event.char == '\r':
                 command = self.terminal.get(str(self.current_terminal_buffer_line) + "." + str(self.current_terminal_buffer_column),END).strip("\n ").split(" ")
@@ -299,16 +300,13 @@ class Window:
                                 self.open_folder("C:/")
                                 return
                         else:
-                            output = subprocess.run(command, capture_output=True)
-                            enter = ""
-                            if len(str(output.stdout)[2:-1]) != 0:
-                                enter = output.stdout
-                            else:
-                                enter = output.stderr
-                            self.current_terminal_buffer_line += (str(enter)[2:-1].count("\\n") + 1)
-                            self.terminal.insert(END,enter + bytes("\n", 'utf-8'))
+                            error = self.run_command(" ".join(command))
+                            if error:
+                                self.terminal.insert(END, error)
+                                self.current_terminal_buffer_line += 1
                     else:
                         self.terminal.insert(END, "Open a directory before using the console.\n")
+                        self.current_terminal_buffer_line += 1
 
                 if self.current_directory:
                     self.terminal.insert(END,self.current_directory + ">")
@@ -387,6 +385,21 @@ class Window:
             self.terminal.insert(END,">>>")
             self.current_terminal_buffer_column = 3
         self.current_terminal_buffer_line = 2
+
+    def run_command(self, command):
+        try:
+            process = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE)
+            while True:
+                output = process.stdout.readline()
+                if output == bytes('',"utf-8") and process.poll() == 0:
+                    break
+                if output:
+                    self.terminal.insert(END,output.strip() + bytes("\n","utf-8"))
+                    self.current_terminal_buffer_line += 1
+            self.terminal.insert(END,"\n")
+            self.current_terminal_buffer_line += 1
+        except:
+            return "'" + command + "' is not a valid command\n"
 
     def parse_message(self, packet_str: DataPacket):
         data_dict = json.loads(packet_str)
