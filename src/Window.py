@@ -370,7 +370,8 @@ class Window:
                         to_send = DataPacketSaveRequest()
                         to_send.define_manually(data_dict.get('document'))
                         self.net_hand.send_packet(to_send)
-                self.log.debug('DataPacketDocumentEdit applied successful?')
+                else:
+                    self.log.debug('DataPacketDocumentEdit applied successful?')
                 # text = self.code.text.get("1.0", END)
                 # text_hash = DataPacketDocumentEdit.get_text_hash(text)
                 # if text_hash == data_dict.get('old_text_hash'):

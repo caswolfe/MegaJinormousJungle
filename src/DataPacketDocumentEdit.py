@@ -70,8 +70,7 @@ class DataPacketDocumentEdit(DataPacket):
         :return: a single DataPacketDocumentEdit with the first detected change
         """
 
-        # old_text_hash = hashlib.sha1(old_text.encode()).hexdigest()
-        old_text_hash = old_text
+        old_text_hash = DataPacketDocumentEdit.get_text_hash(old_text)
         to_ret_packet: DataPacketDocumentEdit = DataPacketDocumentEdit(document)
         for i, s in enumerate(difflib.ndiff(old_text, new_text)):
             if s[0] == ' ':
@@ -147,8 +146,8 @@ class DataPacketDocumentEdit(DataPacket):
 
         :return: the hash of the string
         """
-        # return hashlib.sha1(text.encode()).hexdigest()
-        return text
+        return hashlib.sha1(text.encode()).hexdigest()
+        # return text
 
     def __str__(self) -> str:
         return '\'{}\' - {} - {} - \'{}\''.format(self.old_text_hash, self.action, self.position, self.character)
