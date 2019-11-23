@@ -150,7 +150,7 @@ class Window:
         """
         Shows the window.
         """
-        self.autosave_thread.start() # TODO: fix for better placing
+        # self.autosave_thread.start() # TODO: fix for better placing
         self.cursor_thread.start()
         self.root.mainloop()
 
@@ -348,11 +348,12 @@ class Window:
     def parse_message(self, packet_str: DataPacket):
         data_dict = json.loads(packet_str)
         packet_name = data_dict.get('packet-name')
-        print(data_dict)
         if data_dict.get('mac-addr') == self.mac:
             self.log.debug('received packet from self, ignoring...')
         else:
             self.log.debug('Received a \'{}\''.format(packet_name))
+            print(data_dict)
+
             if packet_name == 'DataPacket':
                 self.log.debug('Received a DataPacket')
 
