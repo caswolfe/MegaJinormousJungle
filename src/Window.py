@@ -358,21 +358,19 @@ class Window:
                 self.log.debug('Received a DataPacket')
 
             elif packet_name == 'DataPacketDocumentEdit':
-                packet = DataPacketDocumentEdit()
-                packet.parse_json(packet_str)
                 self.log.debug('Received a DataPacketDocumentEdit')
                 self.log.debug(data_dict)
-                result = self.workspace.apply_data_packet_document_edit(packet)
+                result = self.workspace.apply_data_packet_document_edit(data_dict)
                 if not result:
                     self.log.error('hash missmatch')
                     if self.is_host:
-                        to_send = self.workspace.get_save_dump_from_document(packet.data_dict.get('document'))
+                        to_send = self.workspace.get_save_dump_from_document(data_dict.get('document'))
                         self.net_hand.send_packet(to_send)
                     else:
                         to_send = DataPacketSaveRequest()
-                        to_send.define_manually(packet.data_dict.get('document'))
+                        to_send.define_manually(data_dict.get('document'))
                         self.net_hand.send_packet(to_send)
-
+                self.log.debug('DataPacketDocumentEdit applied successful?')
                 # text = self.code.text.get("1.0", END)
                 # text_hash = DataPacketDocumentEdit.get_text_hash(text)
                 # if text_hash == data_dict.get('old_text_hash'):
