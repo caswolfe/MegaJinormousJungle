@@ -317,14 +317,14 @@ class Window:
             idx = '1.0'
             color = syntax_dict[kw]
             self.code.text.tag_config(color, foreground=color)
-           # search_term =#rf'\\y{kw}\\y'   # ' '+ kw + ' '
+            # search_term =#rf'\\y{kw}\\y'   # ' '+ kw + ' '
             while idx:
                 idx = self.code.text.search('\\y' + kw +'\\y', idx, nocase=1, stopindex=END, regexp=True)
                 if idx:
-                    #self.log.debug(idx)    
+                    # self.log.debug(idx)
                     nums = idx.split('.')
                     nums = [int(x) for x in nums]
-                    #self.log.debug(f"{left} { right}")
+                    # self.log.debug(f"{left} { right}")
                     lastidx = '%s+%dc' % (idx, len(kw))
                     self.code.text.tag_add(color, idx, lastidx)
                     idx = lastidx
@@ -391,6 +391,10 @@ class Window:
             elif packet_name == 'DataPacketCursorUpdate':
                 self.u2_pos = data_dict.get('position')
 
+            elif packet_name == 'DataPacketSaveDump':
+                packet = DataPacketSaveDump()
+                packet.parse_json(packet_str)
+                self.workspace.apply_data_packet_save_dump(packet)
             else:
                 self.log.warning('Unknown packet type: \'{}\''.format(packet_name))
                 return False

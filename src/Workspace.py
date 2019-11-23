@@ -38,6 +38,7 @@ class Workspace:
         self.is_active = True
 
     def apply_data_packet_save_dump(self, packet: DataPacketSaveDump):
+        self.log.debug('Applying {}'.format(packet.data_dict))
         document: str = packet.data_dict.get('document')
         text: str = packet.data_dict.get('text')
 
