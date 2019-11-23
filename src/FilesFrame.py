@@ -10,7 +10,6 @@ class FilesFrame(Frame):
         self.frame = Frame(self.canvas,borderwidth=5,bg="light grey")
         self.vsb = Scrollbar(root, orient="vertical",bg="grey", command=self.canvas.yview)
         self.canvas.configure(yscrollcommand=self.vsb.set)
-        self.current_file_name = StringVar()
         self.vsb.pack(side="right",fill="y")
         self.canvas.pack(fill="both", expand=True)
         self.canvas.create_window((0,0),window=self.frame, anchor="nw", 
