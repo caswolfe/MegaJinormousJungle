@@ -147,7 +147,8 @@ class DataPacketDocumentEdit(DataPacket):
 
         :return: the hash of the string
         """
-        return hashlib.sha1(text.encode()).hexdigest()
+        # return hashlib.sha1(text.encode()).hexdigest()
+        return text
 
     def __str__(self) -> str:
         return '\'{}\' - {} - {} - \'{}\''.format(self.old_text_hash, self.action, self.position, self.character)
