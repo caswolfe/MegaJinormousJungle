@@ -112,6 +112,7 @@ class Window:
                 self.is_host = True
                 self.have_perms = True
                 self.net_hand.establish_connection()
+                self.back.config(state='disabled')
             else:
                 messagebox.showerror("jumpy", "no active workspace")
 
@@ -125,7 +126,11 @@ class Window:
             dprj = DataPacketRequestJoin()
             self.net_hand.send_packet(dprj)
 
-        self.menu_connections.add_command(label='Disconnect', command=self.net_hand.close_lobby)
+        def disconnect():
+            self.net_hand.close_lobby()
+            self.back.config(state='normal')
+
+        self.menu_connections.add_command(label='Disconnect', command=disconnect)
         self.menu_connections.add_command(label='Create lobby', command=create)
         self.menu_connections.add_command(label='Join lobby', command=join)
 
@@ -308,21 +313,25 @@ class Window:
                 if command[0] != "":
                     if self.current_directory:
                         os.chdir(self.current_directory)
-                        if "cd" in command and not self.net_hand.is_connected:
-                            if len(command) >= 2:
-                                try:
-                                    os.chdir(self.current_directory + "/" + " ".join(command[1::]).strip('\'\"'))
-                                    self.current_directory = os.getcwd().replace("\\","/")
-                                    self.open_folder(self.current_directory)
+                        if "cd" in command:
+                            if not self.net_hand.is_connected:
+                                if len(command) >= 2:
+                                    try:
+                                        os.chdir(self.current_directory + "/" + " ".join(command[1::]).strip('\'\"'))
+                                        self.current_directory = os.getcwd().replace("\\","/")
+                                        self.open_folder(self.current_directory)
+                                        return
+                                    except:
+                                        self.current_terminal_buffer_line += 1
+                                        self.terminal.insert(END,"'" + " ".join(command[1::]).strip('\'\"') + "' does not exist as a subdirectory\n")
+                                else:
+                                    os.chdir("C:/")
+                                    self.current_directory = os.getcwd()
+                                    self.open_folder("C:/")
                                     return
-                                except:
-                                    self.current_terminal_buffer_line += 1
-                                    self.terminal.insert(END,"'" + " ".join(command[1::]).strip('\'\"') + "' does not exist as a subdirectory\n")
                             else:
-                                os.chdir("C:/")
-                                self.current_directory = os.getcwd()
-                                self.open_folder("C:/")
-                                return
+                                self.terminal.insert(END, "Can not change directorys while in workspace.")
+                                self.current_terminal_buffer_line += 1
                         else:
                             error = self.run_command(" ".join(command))
                             if error:
