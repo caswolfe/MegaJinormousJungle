@@ -489,20 +489,21 @@ class Window:
             elif packet_name == 'DataPacketRequestResponse':
                 packet: DataPacketRequestResponse = DataPacketRequestResponse()
                 packet.parse_json(packet_str)
-                self.log.debug('Received a DataPacketRequestResponse')
-                can_join = packet.get_can_join()
+                if packet.get_target_mac() == DataPacket.get_mac_addr_static():
+                    self.log.debug('Received a DataPacketRequestResponse')
+                    can_join = packet.get_can_join()
 
-                # todo: fix
-                if can_join:
-                    self.log.debug('allowed into the lobby')
-                    self.workspace.use_temp_workspace()
-                    self.have_perms = True
-                    messagebox.showinfo("jumpy", "You have been accepted into the lobby!")
-                else:
-                    self.log.debug('rejected from the lobby')
-                    self.have_perms = False
-                    messagebox.showerror("jumpy", "You have NOT been accepted into the lobby...")
-                    self.net_hand.close_connection()
+                    # todo: fix
+                    if can_join:
+                        self.log.debug('allowed into the lobby')
+                        self.workspace.use_temp_workspace()
+                        self.have_perms = True
+                        messagebox.showinfo("jumpy", "You have been accepted into the lobby!")
+                    else:
+                        self.log.debug('rejected from the lobby')
+                        self.have_perms = False
+                        messagebox.showerror("jumpy", "You have NOT been accepted into the lobby...")
+                        self.net_hand.close_connection()
 
             elif packet_name == 'DataPacketCursorUpdate':
                 self.u2_pos = data_dict.get('position')

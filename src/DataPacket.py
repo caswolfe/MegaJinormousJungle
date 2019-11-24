@@ -30,6 +30,10 @@ class DataPacket:
         """
         self.data_dict.update({'time-of-send': str(datetime.now())})
 
+    @staticmethod
+    def get_mac_addr_static():
+        return hex(uuid.getnode())
+
     # def update_data_dict(self) -> None:
     #     """
     #     Updates the data_dict to hold the current values of the variables
