@@ -6,7 +6,8 @@ from tkinter import filedialog, messagebox , simpledialog
 import os
 from threading import Thread
 from time import sleep
-
+import subprocess
+from FilesFrame import FilesFrame
 
 from CodeFrame import CodeFrame
 from DataPacket import DataPacket
@@ -20,6 +21,7 @@ from DataPacketCursorUpdate import DataPacketCursorUpdate
 from DataPacketSaveDump import DataPacketSaveDump
 from Workspace import Workspace
 
+import shlex
 
 class Window:
     """
@@ -43,15 +45,17 @@ class Window:
     bottom_frame = Frame(root)
     files = Frame(top_frame)
 
+    location = Frame(files)
+    radio_frame = Frame(files)
+    directory = Label(location)
+    back = Button(location)
+
     # functional frames
     code = CodeFrame(top_frame)
     terminal = Text(bottom_frame)
-    radio_frame = Scrollbar(files, orient="vertical")
 
     # other variables
     current_directory = None
-    current_terminal_buffer_column = 0
-    current_terminal_buffer_line = 0
     current_file_name = StringVar()
     current_file = None
     old_text = ""
@@ -60,7 +64,6 @@ class Window:
     workspace: Workspace = None
 
     def __init__(self):
-
         self.net_hand = NetworkHandler(self.parse_message)
         self.cursor_thread_run = True
         self.cursor_thread = Thread(target=self.track_cursor)
@@ -70,7 +73,8 @@ class Window:
         self.autosave_thread = Thread(target=self.autosave_thread)
         self.autosave_thread.setDaemon(True)
 
-
+        current_terminal_buffer_column = 0
+        current_terminal_buffer_line = 0
         self.log = logging.getLogger('jumpy')
 
         self.mac = hex(uuid.getnode())
@@ -88,6 +92,7 @@ class Window:
 
         self.root.title("jum.py")
         self.root.bind('<Key>',self.handle_event)
+        self.root.bind('<Button-1>',self.handle_event)
 
         # menu bar
         self.menu_bar.add_cascade(label='File', menu=self.menu_file)
@@ -134,15 +139,24 @@ class Window:
         #  text default
         self.old_text = self.code.text.get("1.0", END)
 
+        self.directory.config(width=20,text="Current Folder:\nNone")
+        self.back.config(text="cd ..\\",command=self.previous_dir)
+
         # visual effects
-        self.files.config(width=100, bg='light grey')
+        self.files.config(width=200, bg='light grey')
         self.terminal.config(height= 10, borderwidth=5)
 
         # visual packs
         self.root.geometry("900x600")
+
         self.top_frame.pack(side="top",fill='both', expand=True)
-        self.bottom_frame.pack(side="bottom",fill='both', expand=True)        
+        self.bottom_frame.pack(side="bottom",fill='both', expand=True) 
+
         self.files.pack(side="left",fill='both')
+        self.location.pack(side="top",fill='x')
+        self.directory.pack(side="left",fill='x', expand=True)
+        self.back.pack(side="right",fill='x',expand=True)
+       
         self.code.pack(side="right",fill='both', expand=True)
         self.terminal.pack(fill='both', expand=True)
 
@@ -153,10 +167,22 @@ class Window:
         # self.autosave_thread.start() # TODO: fix for better placing
         self.cursor_thread.start()
         self.root.mainloop()
+        
+    def previous_dir(self):
+        if self.current_directory != "C:/" and self.current_directory:
+            split = self.current_directory.split("/")
+            new_dir = "/".join(split[0:-1])
+            if(new_dir == "C:"):
+                new_dir += "/"
+            self.open_folder(new_dir)
 
     # TODO for folders with alot of files add a scrollbar
-    def open_folder(self):
-        location = filedialog.askdirectory()
+    def open_folder(self, folder=None):
+        location = ""
+        if folder:
+            location = folder
+        else:
+            location = filedialog.askdirectory()
 
         if location != "":
             self.current_directory = location
@@ -174,6 +200,20 @@ class Window:
             #     # condition so that folders that start with "." are not displayed
             #     if os.path.isfile(item_path) or not item.startswith("."):
             #         Radiobutton(self.radio_frame, text = item, variable=self.current_file_name, command=self.open_item, value=item_path, indicator=0).pack(fill = 'x', ipady = 0)
+            split = str(location).split("/")
+            index = -1
+            folder_name = split[index]
+            while folder_name == "":
+                index -= 1
+                folder_name = split[index]
+            self.directory.config(text="Current Folder:\n" + folder_name)
+            # clear text and delete current radio buttons
+            self.code.text.delete("1.0", END)
+            self.radio_frame.destroy()
+            self.radio_frame = Frame(self.files,width=self.files.cget("width"))
+            self.radio_frame.pack(fill="both",expand=True)
+            self.options = FilesFrame(self.radio_frame,window = self)
+            self.options.populate(location)
             self.reset_terminal()
 
             # starts cursor tracking thread
@@ -203,7 +243,9 @@ class Window:
                 self.code.text.insert(1.0,"Can not interperate this file")
             file.close()
         else:
-            pass
+            self.open_folder(self.current_file_name.get())
+            name = self.current_file_name.get().split("/")[-1]
+            self.directory.config(text="Current Folder:\n" + name)
 
     def save_file(self) -> None:
         f = filedialog.asksaveasfilename(defaultextension=".py")
@@ -262,25 +304,54 @@ class Window:
         # self.syntax_highlighting()
         # self.old_text = self.code.text.get("1.0", END)
         if event.widget == self.terminal:
-            cursor_line, cursor_column = [int(x) for x in self.terminal.index(INSERT).split('.')]
             # handle terminal event
-            #TODO pipe command to terminal, update buffer_column when pip output from terminal 
+            
+            cursor_line, cursor_column = [int(x) for x in self.terminal.index(INSERT).split('.')]
+
             if event.char == '\r':
+                command = self.terminal.get(str(self.current_terminal_buffer_line) + "." + str(self.current_terminal_buffer_column),END).strip("\n ").split(" ")
+                print(command)
+                if command[0] != "":
+                    if self.current_directory:
+                        os.chdir(self.current_directory)
+                        if "cd" in command:
+                            if len(command) >= 2:
+                                try:
+                                    os.chdir(self.current_directory + "/" + " ".join(command[1::]).strip('\'\"'))
+                                    self.current_directory = os.getcwd().replace("\\","/")
+                                    self.open_folder(self.current_directory)
+                                    return
+                                except:
+                                    self.current_terminal_buffer_line += 1
+                                    self.terminal.insert(END,"'" + " ".join(command[1::]).strip('\'\"') + "' does not exist as a subdirectory\n")
+                            else:
+                                os.chdir("C:/")
+                                self.current_directory = os.getcwd()
+                                self.open_folder("C:/")
+                                return
+                        else:
+                            error = self.run_command(" ".join(command))
+                            if error:
+                                self.terminal.insert(END, error)
+                                self.current_terminal_buffer_line += 1
+                    else:
+                        self.terminal.insert(END, "Open a directory before using the console.\n")
+                        self.current_terminal_buffer_line += 1
+
                 if self.current_directory:
                     self.terminal.insert(END,self.current_directory + ">")
                     self.current_terminal_buffer_column = len(self.current_directory) + 1
                 else:
                     self.terminal.insert(END,">>>")
+                self.terminal.see(END)
                 self.current_terminal_buffer_line += 1
+                return
             if event.char == '\x03':
                 self.reset_terminal()
-            if cursor_column < self.current_terminal_buffer_column:
-                if event.keycode == 37:
-                    self.terminal.mark_set("insert", "%d.%d" % (self.current_terminal_buffer_line, cursor_column + 1))
-                elif event.char == '\x08':
-                    self.terminal.insert(END, ">")
-            if cursor_line < self.current_terminal_buffer_line:
-                    self.terminal.mark_set("insert", "%d.%d" % (cursor_line + 1, self.current_terminal_buffer_column))
+            if cursor_column < self.current_terminal_buffer_column or cursor_line < self.current_terminal_buffer_line:
+                if event.char == '\x08':
+                    self.terminal.insert(END,">")
+                self.terminal.mark_set("insert", "%d.%d" % (self.current_terminal_buffer_line, self.current_terminal_buffer_column))
         elif event.widget == self.code.text:
             # handle text event
             if self.net_hand.is_connected:
@@ -337,8 +408,8 @@ class Window:
                     idx = lastidx
 
     def reset_terminal(self):
-        self.terminal.delete("2.0",END)
-        self.terminal.insert(END,"\n")
+        self.terminal.delete("1.0",END)
+        self.terminal.insert(END,"Console:\n")
         if self.current_directory:
             self.terminal.insert(END,self.current_directory + ">")
             self.current_terminal_buffer_column = len(self.current_directory) + 1
@@ -346,6 +417,21 @@ class Window:
             self.terminal.insert(END,">>>")
             self.current_terminal_buffer_column = 3
         self.current_terminal_buffer_line = 2
+
+    def run_command(self, command):
+        try:
+            process = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE)
+            while True:
+                output = process.stdout.readline()
+                if output == bytes('',"utf-8") and process.poll() == 0:
+                    break
+                if output:
+                    self.terminal.insert(END,output.strip() + bytes("\n","utf-8"))
+                    self.current_terminal_buffer_line += 1
+            self.terminal.insert(END,"\n")
+            self.current_terminal_buffer_line += 1
+        except:
+            return "'" + command + "' is not a valid command\n"
 
     def parse_message(self, packet_str: DataPacket):
         data_dict = json.loads(packet_str)
