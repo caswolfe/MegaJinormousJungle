@@ -18,8 +18,8 @@ class FilesFrame(Frame):
         self.frame.bind("<Configure>", self.onFrameConfigure)
 
     def populate(self,workspace):
-        for item in self.workspace.files:
-            item_path = self.workspace.directory + "/" + item
+        for item in workspace.files:
+            item_path = workspace.directory + "/" + item
             self.log.debug('adding \'{}\' radio button...'.format(item_path))
             Radiobutton(self.radio_frame, text=item, variable=self.window.current_file_name, command=self.window.open_item, value=item_path, indicator=0).pack(side='top', fill='x', expand=True)
 
