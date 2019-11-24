@@ -10,7 +10,7 @@ from DataPacketSaveRequest import DataPacketSaveRequest
 
 class Workspace:
 
-    TEMP_DIR: str = "C:/jumpy_temp"
+    TEMP_DIR: str = "./jumpy_temp"
 
     def __init__(self):
 
