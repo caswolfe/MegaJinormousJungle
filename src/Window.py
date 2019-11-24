@@ -179,6 +179,10 @@ class Window:
 
     # TODO for folders with alot of files add a scrollbar
     def open_folder(self, folder=None):
+        if self.net_hand.is_connected:
+            self.back.config(state='disabled')
+        else:
+            self.back.config(state='normal')
         location = ""
         if folder:
             location = folder
@@ -304,7 +308,7 @@ class Window:
                 if command[0] != "":
                     if self.current_directory:
                         os.chdir(self.current_directory)
-                        if "cd" in command:
+                        if "cd" in command and not self.net_hand.is_connected:
                             if len(command) >= 2:
                                 try:
                                     os.chdir(self.current_directory + "/" + " ".join(command[1::]).strip('\'\"'))
