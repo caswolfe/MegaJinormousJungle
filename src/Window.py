@@ -213,7 +213,7 @@ class Window:
             self.radio_frame = Frame(self.files,width=self.files.cget("width"))
             self.radio_frame.pack(fill="both",expand=True)
             self.options = FilesFrame(self.radio_frame,window = self)
-            self.options.populate(self.workspace.files)
+            self.options.populate(self.workspace)
             self.reset_terminal()
 
             # starts cursor tracking thread
