@@ -54,7 +54,6 @@ class DataPacket:
 
         :return: a JSON str with all of the data_dict variables
         """
-        self.update_data_dict()
         return json.dumps(self.data_dict)
 
     def __eq__(self, other) -> bool:

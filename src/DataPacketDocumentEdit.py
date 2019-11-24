@@ -41,7 +41,6 @@ class DataPacketDocumentEdit(DataPacket):
         self.update_data_dict()
 
     def update_data_dict(self) -> None:
-        super().update_data_dict()
         self.data_dict.update({'document': self.document})
         self.data_dict.update({'old_text_hash': self.old_text_hash})
         self.data_dict.update({'action': self.action.value})
