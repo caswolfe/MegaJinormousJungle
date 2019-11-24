@@ -492,6 +492,7 @@ class Window:
                 self.log.debug('Received a DataPacketRequestResponse')
                 can_join = packet.get_can_join()
 
+                # todo: fix
                 if can_join:
                     self.log.debug('allowed into the lobby')
                     self.workspace.use_temp_workspace()
