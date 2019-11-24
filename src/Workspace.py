@@ -120,6 +120,7 @@ class Workspace:
             file.close()
             packet.set_document(item)
             packet.set_text(text)
+            packet.set_workspace_size(len(self.files))
             packets.append(packet)
         return packets
 

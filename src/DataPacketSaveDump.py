@@ -9,14 +9,11 @@ class DataPacketSaveDump(DataPacket):
     KEY_DOCUMENT = 'document'
     KEY_TEXT_HASH = 'text_hash'
     KEY_TEXT = 'text'
+    KEY_WORKSPACE_SIZE = 'workspace_size'
 
     def __init__(self):
         super().__init__()
         self.log = logging.getLogger('jumpy')
-
-        self.document: str = None
-        self.text_hash: str = None
-        self.text: str = None
 
     def get_document(self) -> str:
         return self.data_dict.get(self.KEY_DOCUMENT)
@@ -27,6 +24,9 @@ class DataPacketSaveDump(DataPacket):
     def get_text(self) -> str:
         return self.data_dict.get(self.KEY_TEXT)
 
+    def get_workspace_size(self) -> int:
+        return self.data_dict.get(self.KEY_WORKSPACE_SIZE)
+
     def set_document(self, document: str):
         self.data_dict.update({self.KEY_DOCUMENT: document})
 
@@ -35,6 +35,9 @@ class DataPacketSaveDump(DataPacket):
 
     def set_text(self, text: str):
         self.data_dict.update({self.KEY_TEXT: text})
+
+    def set_workspace_size(self, size: int):
+        self.data_dict.update({self.KEY_WORKSPACE_SIZE: size})
 
     # def define_manually(self, document: str, text: str):
     #     # TODO: discuss if we should compress the text

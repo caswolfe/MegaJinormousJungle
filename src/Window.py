@@ -116,6 +116,7 @@ class Window:
                 messagebox.showerror("jumpy", "no active workspace")
 
         def join():
+            self.code.text.config(state='disabled')
             val = simpledialog.askstring("Lobby name", "Please input the lobby you want to join.")
             self.net_hand.join_lobby(val)
             self.net_hand.establish_connection()
@@ -192,7 +193,6 @@ class Window:
 
             # clear text and delete current radio buttons
             self.code.text.delete("1.0", END)
-            self.update_workspace_radio_buttons()
 
             # folder = os.listdir(location)
             # for item in folder:
@@ -218,16 +218,6 @@ class Window:
 
             # starts cursor tracking thread
             # TODO: uncomment
-
-    def update_workspace_radio_buttons(self):
-        self.radio_frame.destroy()
-        self.radio_frame = Scrollbar(self.files, orient="vertical")
-        self.radio_frame.pack()
-
-        for item in self.workspace.files:
-            item_path = self.workspace.directory + "/" + item
-            self.log.debug('adding \'{}\' radio button...'.format(item_path))
-            Radiobutton(self.radio_frame, text=item, variable=self.current_file_name, command=self.open_item, value=item_path, indicator=0).pack(fill='x', ipady=0)
 
     # TODO add functionality to clicking on folders (change current folder to that folder, have a back button to go to original folder) (chad doesn't think this is needed anymore)
     def open_item(self):
@@ -509,13 +499,14 @@ class Window:
                 self.u2_pos = data_dict.get('position')
 
             elif packet_name == 'DataPacketSaveDump':
-                packet = DataPacketSaveDump()
+                packet: DataPacketSaveDump = DataPacketSaveDump()
                 packet.parse_json(packet_str)
                 self.workspace.apply_data_packet_save_dump(packet)
                 if self.workspace.new_file_added:
-                    self.log.debug('new file added, updating radio buttons')
-                    self.workspace.new_file_added = False
-                    self.update_workspace_radio_buttons()
+                    if len(self.workspace.files) == packet.set_workspace_size():
+                        self.code.text.config(state='normal')
+                        # self.log.debug('new file added, updating radio buttons')
+                        # self.workspace.new_file_added = False
 
             elif packet_name == 'DataPacketSaveRequest':
                 to_send = self.workspace.get_save_dump_from_document(data_dict.get('document'))
