@@ -298,6 +298,8 @@ class Window:
 
             self.old_text = self.code.text.get("1.0", END)
             self.syntax_highlighting()
+            # TODO: chad thinks that this is the answere to hash mis-match
+            sleep(0.05)
 
     def syntax_highlighting(self, lang = 'python'):
         """
@@ -385,10 +387,13 @@ class Window:
                 #     self.log.error("FUCK")
 
             elif packet_name == 'DataPacketRequestJoin':
+                packet: DataPacketRequestJoin = DataPacketRequestJoin()
+                packet.parse_json(packet_str)
                 if self.is_host:
                     result = messagebox.askyesno("jumpy request", "Allow \'{}\' to join the lobby?".format(data_dict.get('mac-addr')))
                     dprr = DataPacketRequestResponse()
-                    dprr.define_manually(data_dict.get('mac_addr'), result)
+                    dprr.set_target_mac(packet.get_mac_addr())
+                    dprr.set_can_join(result)
                     self.net_hand.send_packet(dprr)
                     if result:
                         to_send = self.workspace.get_save_dump()
@@ -396,8 +401,10 @@ class Window:
                             self.net_hand.send_packet(packet)
 
             elif packet_name == 'DataPacketRequestResponse':
+                packet: DataPacketRequestResponse = DataPacketRequestResponse
+                packet.parse_json(packet_str)
                 self.log.debug('Received a DataPacketRequestResponse')
-                can_join = data_dict.get('can_join')
+                can_join = packet.get_can_join()
 
                 if can_join:
                     self.log.debug('allowed into the lobby')
@@ -452,7 +459,8 @@ class Window:
            # try:
               #  file = self.current_file_name.get().rsplit('/', 1)[1]
             dpcu = DataPacketCursorUpdate()
-            dpcu.define_manually("None", position)
+            dpcu.set_document("None")
+            dpcu.set_position(position)
             #print(position, file)
             #self.log.debug(f"position {position} end pos {end_pos}")
             #sleep(1)

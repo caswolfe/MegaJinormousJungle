@@ -5,11 +5,24 @@ from datetime import datetime
 
 class DataPacket:
 
+    KEY_PACKET_NAME = 'packet-name'
+    KEY_MAC_ADDR = 'mac-addr'
+    KEY_TIME_OF_CREATION = 'time-of-creation'
+
     def __init__(self):
         self.data_dict = dict()
-        self.data_dict.update({'packet-name': type(self).__name__})
-        self.data_dict.update({'mac-addr': hex(uuid.getnode())})
-        self.data_dict.update({'time-of-creation': str(datetime.now())})
+        self.data_dict.update({self.KEY_PACKET_NAME: type(self).__name__})
+        self.data_dict.update({self.KEY_MAC_ADDR: hex(uuid.getnode())})
+        self.data_dict.update({self.KEY_TIME_OF_CREATION: str(datetime.now())})
+
+    def get_packet_name(self) -> str:
+        return self.data_dict.get('packet-name')
+
+    def get_mac_addr(self) -> str:
+        return self.data_dict.get('mac-addr')
+
+    def get_time_of_creation(self) -> str:
+        return self.data_dict.get('time-of-creation')
 
     def set_time_of_send(self) -> None:
         """
@@ -17,11 +30,11 @@ class DataPacket:
         """
         self.data_dict.update({'time-of-send': str(datetime.now())})
 
-    def update_data_dict(self) -> None:
-        """
-        Updates the data_dict to hold the current values of the variables
-        """
-        pass
+    # def update_data_dict(self) -> None:
+    #     """
+    #     Updates the data_dict to hold the current values of the variables
+    #     """
+    #     pass
 
     def parse_json(self, json_str: str) -> None:
         """
@@ -47,5 +60,4 @@ class DataPacket:
     def __eq__(self, other) -> bool:
         if not isinstance(self, object):
             return False
-
         return self.data_dict == other.data_dict
