@@ -330,7 +330,7 @@ class Window:
                                     self.open_folder("C:/")
                                     return
                             else:
-                                self.terminal.insert(END, "Can not change directorys while in workspace.")
+                                self.terminal.insert(END, "Can not change directories while in workspace.\n")
                                 self.current_terminal_buffer_line += 1
                         else:
                             error = self.run_command(" ".join(command))
