@@ -118,7 +118,8 @@ class Workspace:
             file = open(self.directory + '/' + item, 'r')
             text = file.read()
             file.close()
-            packet.define_manually(item, text)
+            packet.set_document(item)
+            packet.set_text(text)
             packets.append(packet)
         return packets
 
