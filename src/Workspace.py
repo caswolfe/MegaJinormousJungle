@@ -30,6 +30,9 @@ class Workspace:
 
         self.is_host = False
 
+    def get_workspace_size(self):
+        return len(self.files)
+
     def open_directory(self, directory: str):
         self.directory = directory
         folder = os.listdir(self.directory)
@@ -120,7 +123,7 @@ class Workspace:
             file.close()
             packet.set_document(item)
             packet.set_text(text)
-            packet.set_workspace_size(len(self.files))
+            packet.set_workspace_size(self.get_workspace_size())
             packets.append(packet)
         return packets
 

@@ -3,7 +3,7 @@ import os
 
 class FilesFrame(Frame):
 
-    def __init__(self, root,window):
+    def __init__(self, root, window):
         self.window = window
         Frame.__init__(self, root)
         self.canvas = Canvas(root,width=root.cget("width"))
@@ -17,7 +17,7 @@ class FilesFrame(Frame):
 
         self.frame.bind("<Configure>", self.onFrameConfigure)
 
-    def populate(self,workspace):
+    def populate(self, workspace):
         for item in workspace.files:
             item_path = workspace.directory + "/" + item
             Radiobutton(self.frame, text=item, variable=self.window.current_file_name, command=self.window.open_item, value=item_path, indicator=0).pack(side='top', fill='x', expand=True)

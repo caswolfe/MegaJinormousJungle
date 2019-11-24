@@ -503,12 +503,10 @@ class Window:
                 packet.parse_json(packet_str)
                 self.workspace.apply_data_packet_save_dump(packet)
                 if self.workspace.new_file_added:
-                    if len(self.workspace.files) == packet.set_workspace_size():
+                    if len(self.workspace.files) == packet.get_workspace_size():
                         self.log.debug('received whole workspace, setting code.text state to normal')
                         self.code.text.config(state='normal')
-                        self.options.populate(self.workspace)
-                        # self.log.debug('new file added, updating radio buttons')
-                        # self.workspace.new_file_added = False
+                        self.open_folder(self.workspace.directory)
 
             elif packet_name == 'DataPacketSaveRequest':
                 to_send = self.workspace.get_save_dump_from_document(data_dict.get('document'))
