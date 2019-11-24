@@ -55,7 +55,6 @@ class Window:
     terminal = Text(bottom_frame)
 
     # other variables
-    current_directory = None
     current_file_name = StringVar()
     current_file = None
     old_text = ""
@@ -175,8 +174,8 @@ class Window:
         self.root.mainloop()
         
     def previous_dir(self):
-        if self.current_directory != "C:/" and self.current_directory:
-            split = self.current_directory.split("/")
+        if self.workspace.directory != "C:/" and self.workspace.directory:
+            split = self.workspace.directory.split("/")
             new_dir = "/".join(split[0:-1])
             if(new_dir == "C:"):
                 new_dir += "/"
@@ -195,7 +194,6 @@ class Window:
             location = filedialog.askdirectory()
 
         if location != "":
-            self.current_directory = location
             #clear text and delete current radio buttons
 
             self.workspace.open_directory(location)
@@ -311,22 +309,22 @@ class Window:
                 command = self.terminal.get(str(self.current_terminal_buffer_line) + "." + str(self.current_terminal_buffer_column),END).strip("\n ").split(" ")
                 print(command)
                 if command[0] != "":
-                    if self.current_directory:
-                        os.chdir(self.current_directory)
+                    if self.workspace.directory:
+                        os.chdir(self.workspace.directory)
                         if "cd" in command:
                             if not self.net_hand.is_connected:
                                 if len(command) >= 2:
                                     try:
-                                        os.chdir(self.current_directory + "/" + " ".join(command[1::]).strip('\'\"'))
-                                        self.current_directory = os.getcwd().replace("\\","/")
-                                        self.open_folder(self.current_directory)
+                                        os.chdir(self.workspace.directory + "/" + " ".join(command[1::]).strip('\'\"'))
+                                        self.workspace.open_directory(os.getcwd().replace("\\","/"))
+                                        self.open_folder(self.workspace.directory)
                                         return
                                     except:
                                         self.current_terminal_buffer_line += 1
                                         self.terminal.insert(END,"'" + " ".join(command[1::]).strip('\'\"') + "' does not exist as a subdirectory\n")
                                 else:
                                     os.chdir("C:/")
-                                    self.current_directory = os.getcwd()
+                                    self.workspace.open_directory(os.getcwd())
                                     self.open_folder("C:/")
                                     return
                             else:
@@ -341,9 +339,9 @@ class Window:
                         self.terminal.insert(END, "Open a directory before using the console.\n")
                         self.current_terminal_buffer_line += 1
 
-                if self.current_directory:
-                    self.terminal.insert(END,self.current_directory + ">")
-                    self.current_terminal_buffer_column = len(self.current_directory) + 1
+                if self.workspace.directory:
+                    self.terminal.insert(END,self.workspace.directory + ">")
+                    self.current_terminal_buffer_column = len(self.workspace.directory) + 1
                 else:
                     self.terminal.insert(END,">>>")
                 self.terminal.see(END)
@@ -413,9 +411,9 @@ class Window:
     def reset_terminal(self):
         self.terminal.delete("1.0",END)
         self.terminal.insert(END,"Console:\n")
-        if self.current_directory:
-            self.terminal.insert(END,self.current_directory + ">")
-            self.current_terminal_buffer_column = len(self.current_directory) + 1
+        if self.workspace.directory:
+            self.terminal.insert(END,self.workspace.directory + ">")
+            self.current_terminal_buffer_column = len(self.workspace.directory) + 1
         else:
             self.terminal.insert(END,">>>")
             self.current_terminal_buffer_column = 3
