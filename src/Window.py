@@ -355,6 +355,12 @@ class Window:
                 self.terminal.mark_set("insert", "%d.%d" % (self.current_terminal_buffer_line, self.current_terminal_buffer_column))
         elif event.widget == self.code.text:
             # handle text event
+
+            if self.net_hand.is_connected:
+                to_send = DataPacketDocumentEdit()
+                to_send.set_text(self.code.text.get("1.0", END))
+                self.net_hand.send_packet(to_send)
+
             # if self.net_hand.is_connected:
             #     # packet = DataPacketDocumentEdit(old_text=self.old_text, new_text=self.code.text.get("1.0", END))
             #     filename = "None"
