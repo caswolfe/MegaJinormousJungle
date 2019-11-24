@@ -66,6 +66,7 @@ class Workspace:
             self.log.warning(fee)
         self.directory = self.TEMP_DIR
         self.is_active = True
+        self.open_directory(self.TEMP_DIR)
 
     def apply_data_packet_save_dump(self, packet: DataPacketSaveDump):
         self.log.debug('Applying save dump for \'{}\''.format(packet.data_dict.get('document')))

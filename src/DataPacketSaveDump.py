@@ -8,7 +8,7 @@ class DataPacketSaveDump(DataPacket):
 
     KEY_DOCUMENT = 'document'
     KEY_TEXT_HASH = 'text_hash'
-    KEY_TEXT = 'text'
+    KEY_TEXT = DataPacketDocumentEdit.KEY_TEXT
     KEY_WORKSPACE_SIZE = 'workspace_size'
 
     def __init__(self):
