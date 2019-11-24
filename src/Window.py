@@ -487,7 +487,7 @@ class Window:
                             self.net_hand.send_packet(packet)
 
             elif packet_name == 'DataPacketRequestResponse':
-                packet: DataPacketRequestResponse = DataPacketRequestResponse
+                packet: DataPacketRequestResponse = DataPacketRequestResponse()
                 packet.parse_json(packet_str)
                 self.log.debug('Received a DataPacketRequestResponse')
                 can_join = packet.get_can_join()
