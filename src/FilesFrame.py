@@ -17,13 +17,11 @@ class FilesFrame(Frame):
 
         self.frame.bind("<Configure>", self.onFrameConfigure)
 
-    def populate(self,location):
-        folder = os.listdir(location)
-        for item in folder:
-            item_path = location+ "/" + item 
-            # condition so that folders that start with "." are not displayed
-            if os.path.isfile(item_path) or not item.startswith("."):
-                Radiobutton(self.frame, text = item, variable=self.window.current_file_name, command=self.window.open_item, value=item_path, indicator=0).pack(side='top',fill='x', expand=True)
+    def populate(self,workspace):
+        for item in self.workspace.files:
+            item_path = self.workspace.directory + "/" + item
+            self.log.debug('adding \'{}\' radio button...'.format(item_path))
+            Radiobutton(self.radio_frame, text=item, variable=self.window.current_file_name, command=self.window.open_item, value=item_path, indicator=0).pack(side='top', fill='x', expand=True)
 
     def onFrameConfigure(self, event):
         '''Reset the scroll region to encompass the inner frame'''
