@@ -504,7 +504,9 @@ class Window:
                 self.workspace.apply_data_packet_save_dump(packet)
                 if self.workspace.new_file_added:
                     if len(self.workspace.files) == packet.set_workspace_size():
+                        self.log.debug('received whole workspace, setting code.text state to normal')
                         self.code.text.config(state='normal')
+                        self.options.populate(self.workspace)
                         # self.log.debug('new file added, updating radio buttons')
                         # self.workspace.new_file_added = False
 
