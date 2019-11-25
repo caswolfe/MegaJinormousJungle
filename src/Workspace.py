@@ -91,33 +91,43 @@ class Workspace:
         except EnvironmentError as ee:
             self.log.error(ee)
 
-    def apply_data_packet_document_edit(self, data_dict: dict()) -> bool:
-        document: str = data_dict.get('document')
-        if document not in self.files:
+    def apply_data_packet_document_edit(self, packet: DataPacketDocumentEdit):
+        if packet.get_document() not in self.files:
             self.log.error('RECEIVED DataPacketDocumentEdit FOR A DOCUMENT NOT IN THE CURRENT WORKSPACE')
             return
-        full_qualified_file_name = self.directory + '/' + document
-        file = open(full_qualified_file_name, 'r')
-        file_text = file.read()
-        file.close()
-        file_text_hash = DataPacketDocumentEdit.get_text_hash(file_text)
-        if data_dict.get('old_text_hash') != file_text_hash:
-            self.log.error('Hash Mismatch!')
-            return False
-        applied_text = DataPacketDocumentEdit.apply_packet_data_dict(
-            data_dict.get('old_text_hash'),
-            data_dict.get('action'),
-            data_dict.get('position'),
-            data_dict.get('character'),
-            file_text_hash,
-            file_text
-        )
-
+        full_qualified_file_name = self.directory + '/' + packet.get_document()
         file = open(full_qualified_file_name, 'w')
         file.seek(0)
-        file.write(applied_text)
+        file.write(packet.get_text())
         file.close()
-        return True
+
+    # def apply_data_packet_document_edit(self, data_dict: dict()) -> bool:
+    #     document: str = data_dict.get('document')
+    #     if document not in self.files:
+    #         self.log.error('RECEIVED DataPacketDocumentEdit FOR A DOCUMENT NOT IN THE CURRENT WORKSPACE')
+    #         return
+    #     full_qualified_file_name = self.directory + '/' + document
+    #     file = open(full_qualified_file_name, 'r')
+    #     file_text = file.read()
+    #     file.close()
+    #     file_text_hash = DataPacketDocumentEdit.get_text_hash(file_text)
+    #     if data_dict.get('old_text_hash') != file_text_hash:
+    #         self.log.error('Hash Mismatch!')
+    #         return False
+    #     applied_text = DataPacketDocumentEdit.apply_packet_data_dict(
+    #         data_dict.get('old_text_hash'),
+    #         data_dict.get('action'),
+    #         data_dict.get('position'),
+    #         data_dict.get('character'),
+    #         file_text_hash,
+    #         file_text
+    #     )
+    #
+    #     file = open(full_qualified_file_name, 'w')
+    #     file.seek(0)
+    #     file.write(applied_text)
+    #     file.close()
+    #     return True
 
     def get_save_dump(self) -> list():
         packets = list()

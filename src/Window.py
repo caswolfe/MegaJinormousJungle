@@ -356,7 +356,7 @@ class Window:
         elif event.widget == self.code.text:
             # handle text event
 
-            if self.net_hand.is_connected:
+            if self.net_hand.is_connected and self.current_file_name.get() != "None":
                 to_send = DataPacketDocumentEdit()
                 to_send.set_document(self.current_file)
                 to_send.set_text(self.code.text.get("1.0", END))
@@ -455,19 +455,31 @@ class Window:
 
             elif packet_name == 'DataPacketDocumentEdit':
                 self.log.debug('Received a DataPacketDocumentEdit')
-                self.log.debug(data_dict)
-                result = self.workspace.apply_data_packet_document_edit(data_dict)
-                if not result:
-                    self.log.error('hash missmatch')
-                    if self.is_host:
-                        to_send = self.workspace.get_save_dump_from_document(data_dict.get('document'))
-                        self.net_hand.send_packet(to_send)
-                    else:
-                        to_send = DataPacketSaveRequest()
-                        to_send.define_manually(data_dict.get('document'))
-                        self.net_hand.send_packet(to_send)
-                else:
-                    self.log.debug('DataPacketDocumentEdit applied successful?')
+
+                self.code.text.config(state='disabled')
+
+                packet: DataPacketDocumentEdit = DataPacketDocumentEdit()
+                packet.parse_json(packet_str)
+                self.workspace.apply_data_packet_document_edit(packet)
+                if packet.get_document() == self.current_file:
+                    self.code.text.delete("1.0", END)
+                    self.code.text.insert("1.0", packet.get_text())
+
+                self.code.text.config(state='normal')
+
+                # self.log.debug(data_dict)
+                # result = self.workspace.apply_data_packet_document_edit(data_dict)
+                # if not result:
+                #     self.log.error('hash missmatch')
+                #     if self.is_host:
+                #         to_send = self.workspace.get_save_dump_from_document(data_dict.get('document'))
+                #         self.net_hand.send_packet(to_send)
+                #     else:
+                #         to_send = DataPacketSaveRequest()
+                #         to_send.define_manually(data_dict.get('document'))
+                #         self.net_hand.send_packet(to_send)
+                # else:
+                #     self.log.debug('DataPacketDocumentEdit applied successful?')
                 # text = self.code.text.get("1.0", END)
                 # text_hash = DataPacketDocumentEdit.get_text_hash(text)
                 # if text_hash == data_dict.get('old_text_hash'):
