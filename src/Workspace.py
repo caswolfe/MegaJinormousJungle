@@ -14,7 +14,7 @@ class Workspace:
     if "Linux" in sys.platform:
         TEMP_DIR: str = "/jumpy_temp/"
     else:
-        TEMP_DIR: str = "C:jumpy_temp/"
+        TEMP_DIR: str = "C:/jumpy_temp"
 
     def __init__(self):
 

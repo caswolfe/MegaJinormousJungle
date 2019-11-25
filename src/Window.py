@@ -369,21 +369,8 @@ class Window:
                 to_send.set_text(self.code.text.get("1.0", END))
                 self.net_hand.send_packet(to_send)
 
-            # if self.net_hand.is_connected:
-            #     # packet = DataPacketDocumentEdit(old_text=self.old_text, new_text=self.code.text.get("1.0", END))
-            #     filename = "None"
-            #     try:
-            #         filename = self.current_file_name.get().rsplit('/', 1)[1]
-            #     except IndexError:
-            #         pass
-            #     # packets: list[DataPacketDocumentEdit] = DataPacketDocumentEdit.generate_packets_from_changes(self.old_text, self.code.text.get("1.0", END), filename)
-            #     packet = DataPacketDocumentEdit.generate_first_change_packet(self.old_text, self.code.text.get("1.0", END), filename)
-            #     # for packet in packets:
-            #     #     self.net_hand.send_packet(packet)
-            #     self.net_hand.send_packet(packet)
-            #
-            # self.old_text = self.code.text.get("1.0", END)
-            # self.syntax_highlighting()
+            self.syntax_highlighting()
+
             # # TODO: chad thinks that this is the answere to hash mis-match
             sleep(0.05)
 
