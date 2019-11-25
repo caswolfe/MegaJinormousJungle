@@ -489,6 +489,7 @@ class Window:
                     dprr.set_can_join(result)
                     self.net_hand.send_packet(dprr)
                     if result:
+                        sleep(3)
                         to_send = self.workspace.get_save_dump()
                         for packet in to_send:
                             self.net_hand.send_packet(packet)
