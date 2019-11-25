@@ -4,6 +4,7 @@ import tempfile
 import logging
 import sys 
 
+from pathlib import Path
 from DataPacketDocumentEdit import DataPacketDocumentEdit
 from DataPacketSaveDump import DataPacketSaveDump
 from DataPacketSaveRequest import DataPacketSaveRequest
@@ -14,7 +15,7 @@ class Workspace:
     if "Linux" in sys.platform:
         TEMP_DIR: str = "/jumpy_temp/"
     else:
-        TEMP_DIR: str = "C:/jumpy_temp"
+        TEMP_DIR: str = str(os.path.join(Path.home(), "Downloads"))
 
     def __init__(self):
 
@@ -38,6 +39,7 @@ class Workspace:
         return len(self.files)
 
     def open_directory(self, directory: str):
+        self.log.debug('Opening directory: \'{}\''.format(directory))
         self.directory = directory
         folder = os.listdir(self.directory)
         self.files.clear()
