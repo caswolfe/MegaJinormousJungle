@@ -456,16 +456,18 @@ class Window:
             elif packet_name == 'DataPacketDocumentEdit':
                 self.log.debug('Received a DataPacketDocumentEdit')
 
-                self.code.text.config(state='disabled')
+                # self.code.text.config(state='disabled')
 
                 packet: DataPacketDocumentEdit = DataPacketDocumentEdit()
                 packet.parse_json(packet_str)
                 self.workspace.apply_data_packet_document_edit(packet)
-                if packet.get_document() == self.current_file_name.get().split('/')[-1]:
+                current_doc = self.current_file_name.get().split('/')[-1]
+                if packet.get_document() == current_doc:
                     self.code.text.delete("1.0", END)
-                    self.code.text.insert("1.0", packet.get_text())
+                    self.code.text.insert(END, packet.get_text())
+                    self.syntax_highlighting()
 
-                self.code.text.config(state='normal')
+                # self.code.text.config(state='normal')
 
                 # self.log.debug(data_dict)
                 # result = self.workspace.apply_data_packet_document_edit(data_dict)
