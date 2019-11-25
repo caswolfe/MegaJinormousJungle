@@ -7,6 +7,9 @@ import os
 from threading import Thread
 from time import sleep
 import subprocess
+
+import webbrowser
+
 from FilesFrame import FilesFrame
 
 from CodeFrame import CodeFrame
@@ -100,6 +103,7 @@ class Window:
         # file sub-menu
         self.menu_file.add_command(label="Open", command=self.open_folder)
         self.menu_file.add_command(label="Save", command=self.save_file)
+        self.menu_file.add_command(label="Help", command=self.open_help)
 
         # connections sub-menu
         # self.menu_connections.add_command(label='Connect', command=self.net_hand.establish_connection)
@@ -180,6 +184,9 @@ class Window:
             if(new_dir == "C:"):
                 new_dir += "/"
             self.open_folder(new_dir)
+
+    def open_help(self):
+        webbrowser.open_new("https://docs.google.com/document/d/13AHTV3BVfS3ELmaW2cqfzgJ9YmOeBkkkMqViyU-0WDM/edit?usp=sharing")
 
     # TODO for folders with alot of files add a scrollbar
     def open_folder(self, folder=None):
