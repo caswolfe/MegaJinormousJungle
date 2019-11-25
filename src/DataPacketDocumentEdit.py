@@ -10,6 +10,7 @@ from DataPacket import DataPacket
 
 class DataPacketDocumentEdit(DataPacket):
 
+    KEY_DOCUMENT = 'document'
     KEY_TEXT = 'text'
 
     def __init__(self, document: str):
@@ -19,8 +20,14 @@ class DataPacketDocumentEdit(DataPacket):
     def get_text(self):
         return self.data_dict.get(self.KEY_TEXT)
 
+    def get_document(self):
+        return self.data_dict.get(self.KEY_DOCUMENT)
+
     def set_text(self, text: str):
-        return self.data_dict.update({self.KEY_TEXT: text})
+        self.data_dict.update({self.KEY_TEXT: text})
+
+    def set_document(self, document: str):
+        self.data_dict.update({self.KEY_DOCUMENT: document})
 
     # @staticmethod
     # def generate_first_change_packet(old_text: str, new_text: str, document: str):

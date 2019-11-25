@@ -6,7 +6,7 @@ from DataPacketDocumentEdit import DataPacketDocumentEdit
 
 class DataPacketSaveDump(DataPacket):
 
-    KEY_DOCUMENT = 'document'
+    KEY_DOCUMENT = DataPacketDocumentEdit.KEY_DOCUMENT
     KEY_TEXT_HASH = 'text_hash'
     KEY_TEXT = DataPacketDocumentEdit.KEY_TEXT
     KEY_WORKSPACE_SIZE = 'workspace_size'
