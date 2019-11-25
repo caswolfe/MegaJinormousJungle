@@ -456,7 +456,7 @@ class Window:
             elif packet_name == 'DataPacketDocumentEdit':
                 self.log.debug('Received a DataPacketDocumentEdit')
 
-                # self.code.text.config(state='disabled')
+                cursor_index = self.code.text.index(INSERT)
 
                 packet: DataPacketDocumentEdit = DataPacketDocumentEdit()
                 packet.parse_json(packet_str)
@@ -467,32 +467,7 @@ class Window:
                     self.code.text.insert(END, packet.get_text())
                     self.syntax_highlighting()
 
-                # self.code.text.config(state='normal')
-
-                # self.log.debug(data_dict)
-                # result = self.workspace.apply_data_packet_document_edit(data_dict)
-                # if not result:
-                #     self.log.error('hash missmatch')
-                #     if self.is_host:
-                #         to_send = self.workspace.get_save_dump_from_document(data_dict.get('document'))
-                #         self.net_hand.send_packet(to_send)
-                #     else:
-                #         to_send = DataPacketSaveRequest()
-                #         to_send.define_manually(data_dict.get('document'))
-                #         self.net_hand.send_packet(to_send)
-                # else:
-                #     self.log.debug('DataPacketDocumentEdit applied successful?')
-                # text = self.code.text.get("1.0", END)
-                # text_hash = DataPacketDocumentEdit.get_text_hash(text)
-                # if text_hash == data_dict.get('old_text_hash'):
-                #     self.log.debug("YEET")
-                #     self.log.debug("Old Text: \'{}\"".format(text))
-                #     self.code.text.delete("1.0", END)
-                #     self.code.text.insert("1.0", DataPacketDocumentEdit.apply_packet_data_dict(data_dict.get('old_text_hash'), data_dict.get('action'), data_dict.get('position'), data_dict.get('character'), text_hash, text))
-                #     self.code.text.delete('end-1c', 'end')
-                #     self.log.debug("New Text: \'{}\"".format(self.code.text.get("1.0", END)))
-                # else:
-                #     self.log.error("FUCK")
+                self.code.text.mark_set(INSERT, cursor_index)
 
             elif packet_name == 'DataPacketRequestJoin':
                 packet: DataPacketRequestJoin = DataPacketRequestJoin()
