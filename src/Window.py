@@ -461,7 +461,7 @@ class Window:
                 packet: DataPacketDocumentEdit = DataPacketDocumentEdit()
                 packet.parse_json(packet_str)
                 self.workspace.apply_data_packet_document_edit(packet)
-                if packet.get_document() == self.current_file:
+                if packet.get_document() == self.current_file_name.get().split('/')[-1]:
                     self.code.text.delete("1.0", END)
                     self.code.text.insert("1.0", packet.get_text())
 
