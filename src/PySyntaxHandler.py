@@ -2,21 +2,7 @@ import keyword
 
 class Syntax:
     keyword_list = keyword.kwlist
-    COLORS = [ 'azure', 'alice blue', 'lavender',
-        'lavender blush', 'misty rose', 'midnight blue', 'navy', 'cornflower blue', 'dark slate blue',
-        'slate blue', 'medium slate blue', 'light slate blue', 'medium blue', 'royal blue',  'blue',
-        'dodger blue', 'deep sky blue', 'sky blue', 'light sky blue', 'steel blue', 'light steel blue',
-        'light blue', 'powder blue', 'pale turquoise', 'dark turquoise', 'medium turquoise', 'turquoise',
-        'cyan', 'light cyan', 'cadet blue', 'medium aquamarine', 'aquamarine', 'dark green', 'dark olive green',
-        'dark sea green', 'sea green', 'medium sea green', 'light sea green', 'pale green', 'spring green',
-        'lawn green', 'medium spring green', 'green yellow', 'lime green', 'yellow green',
-        'forest green', 'olive drab', 'dark khaki', 'khaki', 'pale goldenrod', 'light goldenrod yellow',
-        'light yellow', 'yellow', 'gold', 'light goldenrod', 'goldenrod', 'dark goldenrod', 'rosy brown',
-        'indian red', 'saddle brown', 'sandy brown', 'dark salmon', 'salmon', 'light salmon', 'orange', 'dark orange',
-        'coral', 'light coral', 'tomato', 'orange red', 'red', 'hot pink', 'deep pink', 'pink', 'light pink',
-        'pale violet red', 'maroon', 'medium violet red', 'violet red',
-        'medium orchid', 'dark orchid', 'dark violet', 'blue violet', 'purple', 'medium purple',
-        'thistle', 'snow2', 'snow3']
+    COLORS = ['navy','dark turquoise','steel blue','midnight blue','slate blue','medium blue','blue','dark violet','green2','cyan4','red4','purple4','maroon3','magenta4','DeepPink3','dark orange','indian red','SlateBlue1','forest green','dodger blue','chocolate3','IndianRed3','orange2','VioletRed3','blue4','dark green','brown4','firebrick4','PaleTurquoise4','aquamarine4','saddle brown','dark slate gray','pink4','DarkOrange3','yellow4']
 
     color_dict = {}
     def __init__(self):
@@ -24,7 +10,7 @@ class Syntax:
         #print(self.color_dict)
 
     def assign_colors(self):
-        if len(self.COLORS) > len(self.keyword_list):
+        if len(self.COLORS) >= len(self.keyword_list):
             i = 0
             for kw in self.keyword_list:
                 self.color_dict[kw] = self.COLORS[i]
