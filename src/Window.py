@@ -410,6 +410,20 @@ class Window:
                     lastidx = '%s+%dc' % (idx, len(kw))
                     self.code.text.tag_add(color, idx, lastidx)
                     idx = lastidx
+        self.code.text.tag_config("comments", foreground = "olive drab")
+        idx = '1.0'
+        while idx != '':
+            idx = self.code.text.search('#', idx, nocase=1, stopindex=END)
+            #self.log.debug(idx)
+            if idx == '':
+                #self.log.debug(idx)
+                continue
+            #self.log.debug(idx)
+            endl = self.code.text.search('\n', idx, stopindex=END)
+            if endl == "":
+                endl = END
+            self.code.text.tag_add("comments", idx, endl)
+            idx = endl
 
     def reset_terminal(self):
         self.terminal.delete("1.0",END)
