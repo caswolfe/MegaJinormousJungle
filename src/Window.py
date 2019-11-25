@@ -374,7 +374,7 @@ class Window:
             self.syntax_highlighting()
 
             # # TODO: chad thinks that this is the answere to hash mis-match
-            sleep(0.05)
+            sleep(0.1)
 
     def syntax_highlighting(self, lang = 'python'):
         """
