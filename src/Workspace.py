@@ -12,10 +12,7 @@ from DataPacketSaveRequest import DataPacketSaveRequest
 
 class Workspace:
 
-    if "Linux" in sys.platform:
-        TEMP_DIR: str = "/jumpy_temp/"
-    else:
-        TEMP_DIR: str = str(os.path.join(Path.home(), "Downloads"))
+    TEMP_DIR: str = str(os.path.join(Path.home(), "Downloads"))
 
     def __init__(self):
 

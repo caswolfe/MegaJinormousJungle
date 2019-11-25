@@ -120,6 +120,8 @@ class Window:
                 messagebox.showerror("jumpy", "no active workspace")
 
         def join():
+            self.workspace.use_temp_workspace()
+            self.open_folder(self.workspace.directory)
             self.code.text.config(state='disabled')
             val = simpledialog.askstring("Lobby name", "Please input the lobby you want to join.")
             self.net_hand.join_lobby(val)
