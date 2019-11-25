@@ -358,7 +358,7 @@ class Window:
 
             if self.net_hand.is_connected and self.current_file_name.get() != "None":
                 to_send = DataPacketDocumentEdit()
-                to_send.set_document(self.current_file)
+                to_send.set_document(self.current_file_name)
                 to_send.set_text(self.code.text.get("1.0", END))
                 self.net_hand.send_packet(to_send)
 
