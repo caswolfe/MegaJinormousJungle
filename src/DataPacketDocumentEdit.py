@@ -13,7 +13,7 @@ class DataPacketDocumentEdit(DataPacket):
     KEY_DOCUMENT = 'document'
     KEY_TEXT = 'text'
 
-    def __init__(self, document: str):
+    def __init__(self):
         super().__init__()
         self.log = logging.getLogger('jumpy')
 
