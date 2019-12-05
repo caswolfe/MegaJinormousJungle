@@ -497,6 +497,9 @@ class Window:
                     self.net_hand.send_packet(dprr)
                     if result:
                         sleep(3)
+                        name_broadcast = DataPacketNameBroadcast()
+                        name_broadcast.set_name(self.mac_name.get(self.mac))
+                        self.net_hand.send_packet(name_broadcast)
                         to_send = self.workspace.get_save_dump()
                         for packet in to_send:
                             self.net_hand.send_packet(packet)
