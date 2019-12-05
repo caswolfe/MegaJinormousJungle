@@ -379,6 +379,13 @@ class Window:
                 to_send.set_text(self.code.text.get("1.0", END))
                 self.net_hand.send_packet(to_send)
 
+                # send a DataPacketCursorUpdate
+                position = self.code.text.index(INSERT)
+                dpcu = DataPacketCursorUpdate()
+                dpcu.set_position(position)
+                dpcu.set_document(self.current_file_name.get().split('/')[-1])
+                self.net_hand.send_packet(dpcu)
+
             self.syntax_highlighting()
 
             # # TODO: chad thinks that this is the answere to hash mis-match
