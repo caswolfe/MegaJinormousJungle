@@ -587,58 +587,14 @@ class Window:
         curs = self.code.text.tag_config(color, background=color)
         pos_int = [int(x) for x in pos.split(".")]
         end_pos = f'{pos_int[0]}.{pos_int[1]+1}'
-        print('test')
-        print(f"what the fuck add at pos {end_pos}")
         self.code.text.tag_add(color, pos, end_pos)
         
-    # def track_cursor(self):
-    #     cursor_1 = self.code.text.tag_config("c1", background='red')
-    #     cursor_2 = self.code.text.tag_config("c2", background='blue')
-    #     while self.cursor_thread_run:
-    #         position = self.code.text.index(INSERT)
-    #         pos_int = [int(x) for x in position.split(".")]
-    #         end_pos = f'{pos_int[0]}.{pos_int[1]+1}'
-    #         self.code.text.tag_add("c1", position, end_pos)
-    #         # if self.u2_pos is not None:
-    #         #     pos2 = self.u2_pos
-    #         #     pos_int2 = [int(x) for x in pos2.split(".")]
-    #         #     end_pos2 = f'{pos_int2[0]}.{pos_int2[1]+1}'
-    #         #     self.code.text.tag_add("c2", pos2, end_pos2)
-    #        # try:
-    #           #  file = self.current_file_name.get().rsplit('/', 1)[1]
-    #         dpcu = DataPacketCursorUpdate()
-    #         dpcu.set_document("None")
-    #         dpcu.set_position(position)
-    #         #print(position, file)
-    #         #self.log.debug(f"position {position} end pos {end_pos}")
-    #         #sleep(1)
-    #         #self.net_hand.send_packet(dpcu)
-    #         #except Exception:
-    #         #    print('No file open')
-    #         # send position of cursor to others
-    #         while not self.handle_event:
-    #             sleep(1)
-    #         self.code.text.tag_remove("c1",position, end_pos)
-    #         #if self.u2_pos is not None:
-    #         #    self.code.text.tag_remove("c1",pos2, end_pos2)
-
     def autosave_thread(self):
         while True:
             sleep(10)
             if self.is_host:
                 self.log.debug("autosaving...")
                 self.autosave()
-                # p = DataPacketSaveDump()
-                # file = None
-                # try:
-                #     file = self.current_file_name.get().rsplit('/', 1)[1]
-                #
-                # except Exception:
-                #     print('No file open')
-                # p.define_manually(file, self.code.text.get("1.0", END))
-                # self.net_hand.send_packet(p)
-                # # TODO: implement
-                # # self.save_file()
             else:
                 pass
 
