@@ -496,6 +496,12 @@ class Window:
 
                 self.code.text.mark_set(INSERT, cursor_index)
 
+            elif packet_name == 'DataPacketCursorUpdate':
+                u2_pos = data_dict.get('position')
+                name = data_dict.get('mac-addr')
+                self.cursor_update(u2_pos, name)
+
+
             elif packet_name == 'DataPacketRequestJoin':
                 packet: DataPacketRequestJoin = DataPacketRequestJoin()
                 packet.parse_json(packet_str)
@@ -537,14 +543,7 @@ class Window:
                 name_broadcast.set_name(self.mac_name.get(self.mac))
                 self.net_hand.send_packet(name_broadcast)
 
-            elif packet_name == 'DataPacketCursorUpdate':
-                packet = DataPacketCursorUpdate()
-                packet.parse_json(packet_str)
-                u2_pos = packet.get_position()
-                name = self.mac_name.get(packet.get_mac_addr)
-                cursor_update(u2_pos, name)
-                #self.log.debug(self.u2_pos)
-
+            
             elif packet_name == 'DataPacketSaveDump':
                 packet: DataPacketSaveDump = DataPacketSaveDump()
                 packet.parse_json(packet_str)
@@ -580,14 +579,20 @@ class Window:
         words = self.code.text.get("1.0", END).split(" ")
         return words
     def cursor_update(self, pos, name):
-        if name not in names:
-            names[name] = self.cursor_colors.pop()
-        color = names[name]
+        #print("what the fuck")
+        # if name not in names:
+        #     names[name] = self.cursor_colors.pop()
+        #color = names[name]
+        color = 'red'
+        print(color)
+        self.code.text.tag_remove(color,"1.0", END)
         curs = self.code.text.tag_config(color, background=color)
         pos_int = [int(x) for x in pos.split(".")]
         end_pos = f'{pos_int[0]}.{pos_int[1]+1}'
-        self.code.text.tag_add(curs, pos, end_pos)
-        print(self.log.debug(f"what the fuck add at pos {pos_int}"))
+        print('test')
+        print(f"what the fuck add at pos {end_pos}")
+        self.code.text.tag_add(color, pos, end_pos)
+        
     # def track_cursor(self):
     #     cursor_1 = self.code.text.tag_config("c1", background='red')
     #     cursor_2 = self.code.text.tag_config("c2", background='blue')
