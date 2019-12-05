@@ -499,7 +499,7 @@ class Window:
             elif packet_name == 'DataPacketCursorUpdate':
                 u2_pos = data_dict.get('position')
                 name = data_dict.get('mac-addr')
-                self.cursor_update(u2_pos, name)
+                self.cursor_update(u2_pos, str(name))
 
 
             elif packet_name == 'DataPacketRequestJoin':
@@ -579,9 +579,9 @@ class Window:
         words = self.code.text.get("1.0", END).split(" ")
         return words
     def cursor_update(self, pos, name):
-        if name not in names:
-            names[name] = self.cursor_colors.pop()
-        color = names[name]
+        if name not in self.names:
+            self.names[name] = self.cursor_colors.pop()
+        color = self.names[name]
         print(color)
         self.code.text.tag_remove(color,"1.0", END)
         curs = self.code.text.tag_config(color, background=color)
