@@ -579,11 +579,9 @@ class Window:
         words = self.code.text.get("1.0", END).split(" ")
         return words
     def cursor_update(self, pos, name):
-        #print("what the fuck")
-        # if name not in names:
-        #     names[name] = self.cursor_colors.pop()
-        #color = names[name]
-        color = 'red'
+        if name not in names:
+            names[name] = self.cursor_colors.pop()
+        color = names[name]
         print(color)
         self.code.text.tag_remove(color,"1.0", END)
         curs = self.code.text.tag_config(color, background=color)
