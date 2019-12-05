@@ -293,8 +293,8 @@ class MyTestCase(unittest.TestCase):
 
         log.debug("\'{}\' == \'{}\' ???".format(dpcu.get_document(), document_name))
 
-        assert dpcu.get_document() == document_name
-        assert dpcu.get_position() == position
+        assert dpcu.data_dict.get(DataPacketCursorUpdate.KEY_DOCUMENT) == document_name
+        assert dpcu.data_dict.get(DataPacketCursorUpdate.KEY_POSITION) == position
 
     @staticmethod
     def test_NWK_17():

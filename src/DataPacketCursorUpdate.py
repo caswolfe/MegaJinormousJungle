@@ -24,13 +24,3 @@ class DataPacketCursorUpdate(DataPacket):
 
     def set_position(self, position: str):
         self.data_dict.update({self.KEY_POSITION: position})
-
-    # def define_manually(self, document: str, positon: str):
-    #     self.document = document
-    #     self.position = positon
-    #     self.update_data_dict()
-
-    # def update_data_dict(self) -> None:
-    #     super().update_data_dict()
-    #     self.data_dict.update({'document': self.document})
-    #     self.data_dict.update({'position': self.position})
