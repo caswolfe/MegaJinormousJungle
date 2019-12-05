@@ -136,6 +136,7 @@ class Window:
             self.is_host = False
             self.have_perms = False
             dprj = DataPacketRequestJoin()
+            dprj.set_name(self.mac_name.get(self.mac))
             self.net_hand.send_packet(dprj)
 
         def disconnect():
@@ -490,7 +491,7 @@ class Window:
                 packet: DataPacketRequestJoin = DataPacketRequestJoin()
                 packet.parse_json(packet_str)
                 if self.is_host:
-                    result = messagebox.askyesno("jumpy request", "Allow \'{}\' to join the lobby?".format(data_dict.get('mac-addr')))
+                    result = messagebox.askyesno("jumpy request", "Allow \'{}\' to join the lobby?".format(data_dict.get(DataPacketRequestJoin.KEY_NAME)))
                     dprr = DataPacketRequestResponse()
                     dprr.set_target_mac(packet.get_mac_addr())
                     dprr.set_can_join(result)
