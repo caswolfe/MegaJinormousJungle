@@ -10,6 +10,7 @@ import subprocess
 
 import webbrowser
 
+from DataPacketNameBroadcast import DataPacketNameBroadcast
 from FilesFrame import FilesFrame
 
 from CodeFrame import CodeFrame
@@ -83,6 +84,8 @@ class Window:
         self.is_host = False
         self.have_perms = False
 
+        self.mac_name = dict()
+
         self.workspace = Workspace()
 
         self.create()
@@ -111,6 +114,8 @@ class Window:
         def create():
             if self.workspace.is_active:
                 val = simpledialog.askstring("Lobby name", "Please name your lobby")
+                username = simpledialog.askstring("Prompt", "Please input a username")
+                self.mac_name.update({self.mac: username})
                 self.net_hand.join_lobby(val)
                 self.is_host = True
                 self.have_perms = True
@@ -124,6 +129,8 @@ class Window:
             self.open_folder(self.workspace.directory)
             self.code.text.config(state='disabled')
             val = simpledialog.askstring("Lobby name", "Please input the lobby you want to join.")
+            username = simpledialog.askstring("Prompt", "Please input a username")
+            self.mac_name.update({self.mac: username})
             self.net_hand.join_lobby(val)
             self.net_hand.establish_connection()
             self.is_host = False
@@ -513,6 +520,10 @@ class Window:
                         messagebox.showerror("jumpy", "You have NOT been accepted into the lobby...")
                         self.net_hand.close_connection()
 
+                name_broadcast = DataPacketNameBroadcast()
+                name_broadcast.set_name(self.mac_name.get(self.mac))
+                self.net_hand.send_packet(name_broadcast)
+
             elif packet_name == 'DataPacketCursorUpdate':
                 self.u2_pos = data_dict.get('position')
 
@@ -529,6 +540,12 @@ class Window:
             elif packet_name == 'DataPacketSaveRequest':
                 to_send = self.workspace.get_save_dump_from_document(data_dict.get('document'))
                 self.net_hand.send_packet(to_send)
+
+            elif packet_name == 'DataPacketNameBroadcast':
+                packet = DataPacketNameBroadcast()
+                packet.parse_json(packet_str)
+                self.log.debug('mac_name updating {} to {}'.format(packet.get_mac_addr(), packet.get_name()))
+                self.mac_name.update({packet.get_mac_addr(): packet.get_name()})
 
             else:
                 self.log.warning('Unknown packet type: \'{}\''.format(packet_name))

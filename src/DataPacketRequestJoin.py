@@ -1,6 +1,5 @@
 import logging
 from DataPacket import DataPacket
-from DataPacketDocumentEdit import DataPacketDocumentEdit
 
 class DataPacketRequestJoin(DataPacket):
 
