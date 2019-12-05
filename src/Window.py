@@ -68,10 +68,12 @@ class Window:
 
     def __init__(self):
         self.net_hand = NetworkHandler(self.parse_message)
-        self.cursor_thread_run = True
-        self.cursor_thread = Thread(target=self.track_cursor)
-        self.cursor_thread.setDaemon(True)
-        self.u2_pos = None
+        #self.cursor_thread_run = True
+        #self.cursor_thread = Thread(target=self.track_cursor)
+        #self.cursor_thread.setDaemon(True)
+        #self.u2_pos = None
+        self.names = {}
+        self.cursor_colors = ['red', 'green', 'blue', 'yellow', 'cyan']
 
         self.autosave_thread = Thread(target=self.autosave_thread)
         self.autosave_thread.setDaemon(True)
@@ -184,7 +186,7 @@ class Window:
         Shows the window.
         """
         # self.autosave_thread.start() # TODO: fix for better placing
-        self.cursor_thread.start()
+        #self.cursor_thread.start()
         self.root.mainloop()
         
     def previous_dir(self):
@@ -536,8 +538,12 @@ class Window:
                 self.net_hand.send_packet(name_broadcast)
 
             elif packet_name == 'DataPacketCursorUpdate':
-                self.u2_pos = data_dict.get(DataPacketCursorUpdate.KEY_POSITION)
-                self.log.debug(self.u2_pos)
+                packet = DataPacketCursorUpdate()
+                packet.parse_json(packet_str)
+                u2_pos = packet.get_position()
+                name = self.mac_name.get(packet.get_mac_addr)
+                cursor_update(u2_pos, name)
+                #self.log.debug(self.u2_pos)
 
             elif packet_name == 'DataPacketSaveDump':
                 packet: DataPacketSaveDump = DataPacketSaveDump()
@@ -573,37 +579,45 @@ class Window:
         """
         words = self.code.text.get("1.0", END).split(" ")
         return words
-
-    def track_cursor(self):
-        cursor_1 = self.code.text.tag_config("c1", background='red')
-        cursor_2 = self.code.text.tag_config("c2", background='blue')
-        while self.cursor_thread_run:
-            position = self.code.text.index(INSERT)
-            pos_int = [int(x) for x in position.split(".")]
-            end_pos = f'{pos_int[0]}.{pos_int[1]+1}'
-            self.code.text.tag_add("c1", position, end_pos)
-            # if self.u2_pos is not None:
-            #     pos2 = self.u2_pos
-            #     pos_int2 = [int(x) for x in pos2.split(".")]
-            #     end_pos2 = f'{pos_int2[0]}.{pos_int2[1]+1}'
-            #     self.code.text.tag_add("c2", pos2, end_pos2)
-           # try:
-              #  file = self.current_file_name.get().rsplit('/', 1)[1]
-            dpcu = DataPacketCursorUpdate()
-            dpcu.set_document("None")
-            dpcu.set_position(position)
-            #print(position, file)
-            #self.log.debug(f"position {position} end pos {end_pos}")
-            #sleep(1)
-            #self.net_hand.send_packet(dpcu)
-            #except Exception:
-            #    print('No file open')
-            # send position of cursor to others
-            while not self.handle_event:
-                sleep(1)
-            self.code.text.tag_remove("c1",position, end_pos)
-            #if self.u2_pos is not None:
-            #    self.code.text.tag_remove("c1",pos2, end_pos2)
+    def cursor_update(self, pos, name):
+        if name not in names:
+            names[name] = self.cursor_colors.pop()
+        color = names[name]
+        curs = self.code.text.tag_config(color, background=color)
+        pos_int = [int(x) for x in pos.split(".")]
+        end_pos = f'{pos_int[0]}.{pos_int[1]+1}'
+        self.code.text.tag_add(curs, pos, end_pos)
+        print(self.log.debug(f"what the fuck add at pos {pos_int}"))
+    # def track_cursor(self):
+    #     cursor_1 = self.code.text.tag_config("c1", background='red')
+    #     cursor_2 = self.code.text.tag_config("c2", background='blue')
+    #     while self.cursor_thread_run:
+    #         position = self.code.text.index(INSERT)
+    #         pos_int = [int(x) for x in position.split(".")]
+    #         end_pos = f'{pos_int[0]}.{pos_int[1]+1}'
+    #         self.code.text.tag_add("c1", position, end_pos)
+    #         # if self.u2_pos is not None:
+    #         #     pos2 = self.u2_pos
+    #         #     pos_int2 = [int(x) for x in pos2.split(".")]
+    #         #     end_pos2 = f'{pos_int2[0]}.{pos_int2[1]+1}'
+    #         #     self.code.text.tag_add("c2", pos2, end_pos2)
+    #        # try:
+    #           #  file = self.current_file_name.get().rsplit('/', 1)[1]
+    #         dpcu = DataPacketCursorUpdate()
+    #         dpcu.set_document("None")
+    #         dpcu.set_position(position)
+    #         #print(position, file)
+    #         #self.log.debug(f"position {position} end pos {end_pos}")
+    #         #sleep(1)
+    #         #self.net_hand.send_packet(dpcu)
+    #         #except Exception:
+    #         #    print('No file open')
+    #         # send position of cursor to others
+    #         while not self.handle_event:
+    #             sleep(1)
+    #         self.code.text.tag_remove("c1",position, end_pos)
+    #         #if self.u2_pos is not None:
+    #         #    self.code.text.tag_remove("c1",pos2, end_pos2)
 
     def autosave_thread(self):
         while True:
