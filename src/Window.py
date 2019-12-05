@@ -536,7 +536,8 @@ class Window:
                 self.net_hand.send_packet(name_broadcast)
 
             elif packet_name == 'DataPacketCursorUpdate':
-                self.u2_pos = data_dict.get('position')
+                self.u2_pos = data_dict.get(DataPacketCursorUpdate.KEY_POSITION)
+                self.log.debug(self.u2_pos)
 
             elif packet_name == 'DataPacketSaveDump':
                 packet: DataPacketSaveDump = DataPacketSaveDump()
