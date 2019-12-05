@@ -10,6 +10,7 @@ import subprocess
 
 import webbrowser
 
+from DataPacketNameBroadcast import DataPacketNameBroadcast
 from FilesFrame import FilesFrame
 
 from CodeFrame import CodeFrame
@@ -67,10 +68,12 @@ class Window:
 
     def __init__(self):
         self.net_hand = NetworkHandler(self.parse_message)
-        self.cursor_thread_run = True
-        self.cursor_thread = Thread(target=self.track_cursor)
-        self.cursor_thread.setDaemon(True)
-        self.u2_pos = None
+        #self.cursor_thread_run = True
+        #self.cursor_thread = Thread(target=self.track_cursor)
+        #self.cursor_thread.setDaemon(True)
+        #self.u2_pos = None
+        self.names = {}
+        self.cursor_colors = ['red', 'green', 'blue', 'yellow', 'cyan']
 
         self.autosave_thread = Thread(target=self.autosave_thread)
         self.autosave_thread.setDaemon(True)
@@ -82,6 +85,8 @@ class Window:
         self.mac = hex(uuid.getnode())
         self.is_host = False
         self.have_perms = False
+
+        self.mac_name = dict()
 
         self.workspace = Workspace()
 
@@ -111,6 +116,8 @@ class Window:
         def create():
             if self.workspace.is_active:
                 val = simpledialog.askstring("Lobby name", "Please name your lobby")
+                username = simpledialog.askstring("Prompt", "Please input a username")
+                self.mac_name.update({self.mac: username})
                 self.net_hand.join_lobby(val)
                 self.is_host = True
                 self.have_perms = True
@@ -124,11 +131,14 @@ class Window:
             self.open_folder(self.workspace.directory)
             self.code.text.config(state='disabled')
             val = simpledialog.askstring("Lobby name", "Please input the lobby you want to join.")
+            username = simpledialog.askstring("Prompt", "Please input a username")
+            self.mac_name.update({self.mac: username})
             self.net_hand.join_lobby(val)
             self.net_hand.establish_connection()
             self.is_host = False
             self.have_perms = False
             dprj = DataPacketRequestJoin()
+            dprj.set_name(self.mac_name.get(self.mac))
             self.net_hand.send_packet(dprj)
 
         def disconnect():
@@ -176,7 +186,7 @@ class Window:
         Shows the window.
         """
         # self.autosave_thread.start() # TODO: fix for better placing
-        self.cursor_thread.start()
+        #self.cursor_thread.start()
         self.root.mainloop()
         
     def previous_dir(self):
@@ -371,6 +381,13 @@ class Window:
                 to_send.set_text(self.code.text.get("1.0", END))
                 self.net_hand.send_packet(to_send)
 
+                # send a DataPacketCursorUpdate
+                position = self.code.text.index(INSERT)
+                dpcu = DataPacketCursorUpdate()
+                dpcu.set_position(position)
+                dpcu.set_document(self.current_file_name.get().split('/')[-1])
+                self.net_hand.send_packet(dpcu)
+
             self.syntax_highlighting()
 
             # # TODO: chad thinks that this is the answere to hash mis-match
@@ -479,17 +496,26 @@ class Window:
 
                 self.code.text.mark_set(INSERT, cursor_index)
 
+            elif packet_name == 'DataPacketCursorUpdate':
+                u2_pos = data_dict.get('position')
+                name = data_dict.get('mac-addr')
+                self.cursor_update(u2_pos, str(name))
+
+
             elif packet_name == 'DataPacketRequestJoin':
                 packet: DataPacketRequestJoin = DataPacketRequestJoin()
                 packet.parse_json(packet_str)
                 if self.is_host:
-                    result = messagebox.askyesno("jumpy request", "Allow \'{}\' to join the lobby?".format(data_dict.get('mac-addr')))
+                    result = messagebox.askyesno("jumpy request", "Allow \'{}\' to join the lobby?".format(data_dict.get(DataPacketRequestJoin.KEY_NAME)))
                     dprr = DataPacketRequestResponse()
                     dprr.set_target_mac(packet.get_mac_addr())
                     dprr.set_can_join(result)
                     self.net_hand.send_packet(dprr)
                     if result:
                         sleep(3)
+                        name_broadcast = DataPacketNameBroadcast()
+                        name_broadcast.set_name(self.mac_name.get(self.mac))
+                        self.net_hand.send_packet(name_broadcast)
                         to_send = self.workspace.get_save_dump()
                         for packet in to_send:
                             self.net_hand.send_packet(packet)
@@ -513,9 +539,11 @@ class Window:
                         messagebox.showerror("jumpy", "You have NOT been accepted into the lobby...")
                         self.net_hand.close_connection()
 
-            elif packet_name == 'DataPacketCursorUpdate':
-                self.u2_pos = data_dict.get('position')
+                name_broadcast = DataPacketNameBroadcast()
+                name_broadcast.set_name(self.mac_name.get(self.mac))
+                self.net_hand.send_packet(name_broadcast)
 
+            
             elif packet_name == 'DataPacketSaveDump':
                 packet: DataPacketSaveDump = DataPacketSaveDump()
                 packet.parse_json(packet_str)
@@ -529,6 +557,12 @@ class Window:
             elif packet_name == 'DataPacketSaveRequest':
                 to_send = self.workspace.get_save_dump_from_document(data_dict.get('document'))
                 self.net_hand.send_packet(to_send)
+
+            elif packet_name == 'DataPacketNameBroadcast':
+                packet = DataPacketNameBroadcast()
+                packet.parse_json(packet_str)
+                self.log.debug('mac_name updating {} to {}'.format(packet.get_mac_addr(), packet.get_name()))
+                self.mac_name.update({packet.get_mac_addr(): packet.get_name()})
 
             else:
                 self.log.warning('Unknown packet type: \'{}\''.format(packet_name))
@@ -544,55 +578,23 @@ class Window:
         """
         words = self.code.text.get("1.0", END).split(" ")
         return words
-
-    def track_cursor(self):
-        cursor_1 = self.code.text.tag_config("c1", background='red')
-        cursor_2 = self.code.text.tag_config("c2", background='blue')
-        while self.cursor_thread_run:
-            position = self.code.text.index(INSERT)
-            pos_int = [int(x) for x in position.split(".")]
-            end_pos = f'{pos_int[0]}.{pos_int[1]+1}'
-            self.code.text.tag_add("c1", position, end_pos)
-            # if self.u2_pos is not None:
-            #     pos2 = self.u2_pos
-            #     pos_int2 = [int(x) for x in pos2.split(".")]
-            #     end_pos2 = f'{pos_int2[0]}.{pos_int2[1]+1}'
-            #     self.code.text.tag_add("c2", pos2, end_pos2)
-           # try:
-              #  file = self.current_file_name.get().rsplit('/', 1)[1]
-            dpcu = DataPacketCursorUpdate()
-            dpcu.set_document("None")
-            dpcu.set_position(position)
-            #print(position, file)
-            #self.log.debug(f"position {position} end pos {end_pos}")
-            #sleep(1)
-            #self.net_hand.send_packet(dpcu)
-            #except Exception:
-            #    print('No file open')
-            # send position of cursor to others
-            while not self.handle_event:
-                sleep(1)
-            self.code.text.tag_remove("c1",position, end_pos)
-            #if self.u2_pos is not None:
-            #    self.code.text.tag_remove("c1",pos2, end_pos2)
-
+    def cursor_update(self, pos, name):
+        if name not in self.names:
+            self.names[name] = self.cursor_colors.pop()
+        color = self.names[name]
+        print(color)
+        self.code.text.tag_remove(color,"1.0", END)
+        curs = self.code.text.tag_config(color, background=color)
+        pos_int = [int(x) for x in pos.split(".")]
+        end_pos = f'{pos_int[0]}.{pos_int[1]+1}'
+        self.code.text.tag_add(color, pos, end_pos)
+        
     def autosave_thread(self):
         while True:
             sleep(10)
             if self.is_host:
                 self.log.debug("autosaving...")
                 self.autosave()
-                # p = DataPacketSaveDump()
-                # file = None
-                # try:
-                #     file = self.current_file_name.get().rsplit('/', 1)[1]
-                #
-                # except Exception:
-                #     print('No file open')
-                # p.define_manually(file, self.code.text.get("1.0", END))
-                # self.net_hand.send_packet(p)
-                # # TODO: implement
-                # # self.save_file()
             else:
                 pass
 

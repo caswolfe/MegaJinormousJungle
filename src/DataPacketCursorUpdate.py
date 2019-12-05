@@ -22,7 +22,7 @@ class DataPacketCursorUpdate(DataPacket):
     def set_document(self, document: str):
         self.data_dict.update({self.KEY_DOCUMENT: document})
 
-    def set_position(self, position: int):
+    def set_position(self, position: str):
         self.data_dict.update({self.KEY_POSITION: position})
 
     # def define_manually(self, document: str, positon: str):

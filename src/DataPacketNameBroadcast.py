@@ -1,11 +1,10 @@
 import logging
 from DataPacket import DataPacket
-from DataPacketNameBroadcast import DataPacketNameBroadcast
 
 
-class DataPacketRequestJoin(DataPacket):
+class DataPacketNameBroadcast(DataPacket):
 
-    KEY_NAME = DataPacketNameBroadcast.KEY_NAME
+    KEY_NAME = 'user-name'
 
     def __init__(self):
         super().__init__()
