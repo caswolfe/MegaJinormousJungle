@@ -34,12 +34,6 @@ class DataPacket:
     def get_mac_addr_static():
         return hex(uuid.getnode())
 
-    # def update_data_dict(self) -> None:
-    #     """
-    #     Updates the data_dict to hold the current values of the variables
-    #     """
-    #     pass
-
     def parse_json(self, json_str: str) -> None:
         """
         Parses the provided JSON setting all parameters of the packet to those specified in the given JSON

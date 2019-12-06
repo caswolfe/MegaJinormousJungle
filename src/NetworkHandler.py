@@ -73,22 +73,6 @@ class NetworkHandler:
         self.lobby = None
         self.close_connection()
 
-    # def open_as_host(self) -> bool:\n    #     """\n    #     Opens connections with this machine as host.\n    #     """\n    #     pass
-
-    # def close_as_host(self) -> None:\n    #     """\n    #     Closes all connections with this machine as host.\n    #     :return:\n    #     """\n    #     pass
-
-    # def add_network_action_handler(self, nah: NetworkActionHandler) -> bool:
-    #     """
-    #     Adds a NetworkActionHandler to this SocketHandler.
-    #     """
-    #     self.nahs.append(nah)
-    #
-    # def remove_network_action_handler(self, nah: NetworkActionHandler) -> bool:
-    #     """
-    #     Removes the specified NetworkActionHandler from this SocketHandler.
-    #     """
-    #     self.nahs.remove(nah)
-
     def send_packet(self, packet: DataPacket) -> bool:
         """
         Broadcasts the specified packet to all peers.
@@ -105,12 +89,6 @@ class NetworkHandler:
         self.log.info('connected')
 
     def mqtt_on_message(self, client, userdata, msg):
-        #self.log.info('received: \'{}\''.format(msg.payload))
-        # if self.unit_testing:
-        #     dp = DataPacket()
-        #     dp.parse_json(json.loads(msg.payload))
-        #     print(dp.data_dict)
-        #     self.unit_testing_received_packet = dp
         self.parse_message_function(msg.payload)
 
     def mqtt_on_subscribe(self, client, obj, mid, granted_qos):
